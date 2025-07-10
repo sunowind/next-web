@@ -55,9 +55,9 @@ export function LoginForm() {
         login(result.token, result.user)
         setSubmitMessage({ type: 'success', text: result.message })
         
-        // 重定向到dashboard
+        // 重定向到首页
         setTimeout(() => {
-          router.push('/dashboard')
+          router.push('/')
         }, 1000)
       } else {
         setSubmitMessage({ type: 'error', text: result.message })

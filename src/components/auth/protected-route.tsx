@@ -45,7 +45,7 @@ interface PublicRouteProps {
   redirectTo?: string
 }
 
-export function PublicRoute({ children, redirectTo = '/dashboard' }: PublicRouteProps) {
+export function PublicRoute({ children, redirectTo = '/' }: PublicRouteProps) {
   const { isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
 

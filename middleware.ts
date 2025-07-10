@@ -4,7 +4,6 @@ import { getAuthFromRequest, getAuthFromCookie } from '@/lib/auth'
 
 // 需要认证的路由
 const protectedPaths = [
-  '/dashboard',
   '/profile',
   '/settings',
   '/admin',
@@ -35,8 +34,8 @@ export function middleware(request: NextRequest) {
     }
 
     if (isAuthPath && auth) {
-      // 已认证用户访问登录/注册页面，重定向到dashboard
-      const redirectUrl = request.nextUrl.searchParams.get('redirect') || '/dashboard'
+      // 已认证用户访问登录/注册页面，重定向到首页
+      const redirectUrl = request.nextUrl.searchParams.get('redirect') || '/'
       return NextResponse.redirect(new URL(redirectUrl, request.url))
     }
   }

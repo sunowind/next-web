@@ -112,7 +112,7 @@ describe('LoginForm', () => {
     })
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/dashboard')
+      expect(mockPush).toHaveBeenCalledWith('/')
     })
   })
 

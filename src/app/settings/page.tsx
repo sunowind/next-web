@@ -12,7 +12,7 @@ export default function SettingsPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-6">
               <h1 className="text-3xl font-bold text-gray-900">账户设置</h1>
-              <Link href="/dashboard">
+              <Link href="/">
                 <Button variant="outline">返回仪表盘</Button>
               </Link>
             </div>

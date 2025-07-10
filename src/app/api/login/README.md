@@ -164,8 +164,8 @@ const loginUser = async (username: string, password: string) => {
       localStorage.setItem('auth_token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
       
-      // 重定向到dashboard
-      window.location.href = '/dashboard'
+      // 重定向到首页
+      window.location.href = '/'
     } else {
       console.error('登录失败:', data.message)
     }
