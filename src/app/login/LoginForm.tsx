@@ -149,6 +149,19 @@ export function LoginForm() {
             </a>
           </span>
         </div>
+
+        {/* 找回密码链接 */}
+        <div className="mt-2 text-center">
+          <span className="text-sm text-muted-foreground">
+            忘记密码？{' '}
+            <a
+              href="/auth/forgot-password"
+              className="text-primary hover:underline font-medium"
+            >
+              找回密码
+            </a>
+          </span>
+        </div>
       </CardContent>
     </Card>
   )

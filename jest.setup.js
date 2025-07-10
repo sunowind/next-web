@@ -1,3 +1,4 @@
+import 'whatwg-fetch'
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
 
@@ -10,40 +11,63 @@ global.TextDecoder = TextDecoder
 // Mock fetch for testing (will be overridden in individual tests)
 global.fetch = jest.fn()
 
-// Mock Request and Response for Node.js environment
-global.Request = class MockRequest {
-  constructor(url, options = {}) {
-    this.url = url
-    this.method = options.method || 'GET'
-    this.headers = new Map(Object.entries(options.headers || {}))
-    this._body = options.body
+// Mock Next.js modules
+jest.mock('next/server', () => {
+  class MockResponse {
+    constructor(body, init = {}) {
+      this.body = body
+      this.status = init.status || 200
+      this.statusText = init.statusText || 'OK'
+      this.headers = new Map(Object.entries(init.headers || {}))
+      this.ok = this.status >= 200 && this.status < 300
+    }
+
+    json() {
+      return Promise.resolve(this.body)
+    }
+
+    text() {
+      return Promise.resolve(JSON.stringify(this.body))
+    }
   }
 
-  async json() {
-    return JSON.parse(this._body)
+  class MockNextRequest {
+    constructor(url, init = {}) {
+      this.url = url
+      this.method = init.method || 'GET'
+      this.headers = new Map(Object.entries(init.headers || {}))
+      this.body = init.body || null
+    }
+
+    json() {
+      return Promise.resolve(this.body ? JSON.parse(this.body) : {})
+    }
+
+    text() {
+      return Promise.resolve(this.body || '')
+    }
   }
 
-  async text() {
-    return this._body
-  }
-}
-
-global.Response = class MockResponse {
-  constructor(body, options = {}) {
-    this.body = body
-    this.status = options.status || 200
-    this.statusText = options.statusText || 'OK'
-    this.headers = new Map(Object.entries(options.headers || {}))
-  }
-
-  async json() {
-    return JSON.parse(this.body)
+  const NextResponse = {
+    json: jest.fn((data, init = {}) => {
+      return new MockResponse(data, init)
+    }),
+    redirect: jest.fn((url, init = {}) => {
+      return new MockResponse(null, { ...init, status: 302, headers: { Location: url } })
+    }),
+    next: jest.fn(() => {
+      return new MockResponse(null, { status: 200 })
+    }),
+    rewrite: jest.fn((url) => {
+      return new MockResponse(null, { status: 200, headers: { 'x-rewrite-url': url } })
+    })
   }
 
-  async text() {
-    return this.body
+  return {
+    NextResponse,
+    NextRequest: MockNextRequest
   }
-}
+})
 
 // Mock localStorage
 const localStorageMock = (() => {
