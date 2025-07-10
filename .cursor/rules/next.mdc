@@ -1,0 +1,45 @@
+---
+description: Next.js project TypeScript/React code style guide
+globs:
+alwaysApply: false
+---
+
+# Tech Stack
+- Expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, and Tailwind CSS.
+
+# Code Style
+- All code must use TypeScript. Prefer interfaces over types. Avoid enums; use maps instead.
+- Use only functional components; classes are prohibited.
+- Naming: Use camelCase for variables/functions, kebab-case for directories (e.g., components/auth-wizard).
+- Prefer named exports for all components.
+- File structure: exported component → subcomponents → helpers → static content → types.
+
+# Syntax & Formatting
+- Use the function keyword for pure functions.
+- Avoid unnecessary curly braces in simple conditionals; prefer concise expressions.
+- Write declarative, clean JSX.
+
+# UI & Styling
+- Use Shadcn UI, Radix UI, and Tailwind CSS for components and styling.
+- Implement responsive, mobile-first design with Tailwind.
+- Optimize images: use WebP format, include size attributes, and enable lazy loading.
+
+# Performance Optimization
+- Minimize use of 'use client', 'useEffect', and 'setState'; only use for essential Web API access in small components.
+- Prefer React Server Components (RSC) and Next.js SSR.
+- Wrap client components in Suspense with a fallback.
+- Use dynamic imports for non-critical components.
+- Optimize for Web Vitals (LCP, CLS, FID).
+
+# State & Data
+- Use nuqs for URL search parameter state management.
+- Do not use 'use client' for data fetching or global state management.
+
+# General
+- Strictly follow Next.js documentation for data fetching, rendering, and routing.
+  
+    - Use only for Web API access in small components.
+    - Avoid for data fetching or state management.
+  
+  Follow Next.js docs for Data Fetching, Rendering, and Routing.
+  
