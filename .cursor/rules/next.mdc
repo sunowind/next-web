@@ -18,7 +18,7 @@ alwaysApply: false
 - Write declarative, clean JSX.
 
 # UI & Styling
-- Use Shadcn UI, Radix UI, and Tailwind CSS for components and styling.
+- Use Shadcn UI and Tailwind CSS for components and styling.
 - Implement responsive, mobile-first design with Tailwind.
 - Optimize images: use WebP format, include size attributes, and enable lazy loading.
 

@@ -2,7 +2,7 @@
 
 ## 概述
 
-用户注册 API 提供了完整的用户注册功能，包括输入验证、密码强度检查、密码加密和数据库存储。
+用户注册 API 提供了基本的用户注册功能，包括输入验证、密码加密和数据库存储。
 
 ## 端点
 
@@ -26,7 +26,7 @@ POST /api/register
 ```json
 {
   "success": true,
-  "message": "注册成功",
+  "message": "注册成功！请使用新账号登录",
   "user": {
     "username": "testuser"
   }
@@ -66,14 +66,12 @@ POST /api/register
 
 - 不能为空
 - 长度：3-20 个字符
-- 只能包含字母、数字和下划线
 - 必须唯一
 
 ### 密码
 
 - 不能为空
 - 最小长度：6 个字符
-- 强度要求：使用 zxcvbn 检查，分数必须 ≥ 2
 
 ## 安全特性
 
@@ -87,7 +85,6 @@ POST /api/register
 - **框架**：Next.js 15 App Router
 - **数据库**：SQLite + Prisma ORM
 - **密码加密**：bcryptjs
-- **密码强度检查**：zxcvbn
 - **验证**：自定义验证函数
 
 ## 测试
@@ -95,16 +92,15 @@ POST /api/register
 ### 手动测试结果
 
 1. ✅ 成功注册新用户
-2. ✅ 密码强度验证
-3. ✅ 用户名重复检查
-4. ✅ 输入验证
-5. ✅ 错误处理
+2. ✅ 用户名重复检查
+3. ✅ 输入验证
+4. ✅ 错误处理
 
 ### 自动化测试
 
-- 前端组件测试：12 个测试用例，全部通过
-- 后端验证函数测试：17 个测试用例，全部通过
-- 总测试覆盖率：29 个测试用例，全部通过
+- 前端组件测试：8 个测试用例，全部通过
+- 后端验证函数测试：6 个测试用例，全部通过
+- 总测试覆盖率：14 个测试用例，全部通过
 
 ## 数据库结构
 
@@ -124,15 +120,15 @@ CREATE TABLE users (
 # 成功注册
 curl -X POST http://localhost:3000/api/register \
   -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"StrongPassword123!"}'
+  -d '{"username":"testuser","password":"password123"}'
 
-# 密码太弱
+# 密码太短
 curl -X POST http://localhost:3000/api/register \
   -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"123456"}'
+  -d '{"username":"testuser","password":"123"}'
 
 # 用户名已存在
 curl -X POST http://localhost:3000/api/register \
   -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"StrongPassword123!"}'
+  -d '{"username":"testuser","password":"password123"}'
 ```

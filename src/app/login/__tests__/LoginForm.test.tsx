@@ -1,30 +1,29 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 import { LoginForm } from '../LoginForm'
+import { AuthProvider } from '@/components/auth/auth-context'
+
+// Mock Next.js router
+const mockPush = jest.fn()
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}))
 
 // Mock fetch
 const mockFetch = jest.fn()
 global.fetch = mockFetch
 
-// Mock setTimeout to avoid navigation issues
-const originalSetTimeout = global.setTimeout
-beforeAll(() => {
-  ;(global as unknown as { setTimeout: (fn: (...args: unknown[]) => void, delay: number) => void }).setTimeout = jest.fn((fn: (...args: unknown[]) => void, _delay: number) => {
-    if (typeof fn === 'function') {
-      fn()
-    }
-    return 1 as unknown as number
-  })
-})
-
-afterAll(() => {
-  ;(global as unknown as { setTimeout: (fn: (...args: unknown[]) => void, delay: number) => void }).setTimeout = originalSetTimeout
-})
-
 // Mock setTimeout to avoid timing issues in tests
 jest.useFakeTimers()
+
+// Wrapper component for testing with AuthProvider
+function TestWrapper({ children }: { children: React.ReactNode }) {
+  return <AuthProvider>{children}</AuthProvider>
+}
 
 describe('LoginForm', () => {
   beforeEach(() => {
@@ -44,7 +43,11 @@ describe('LoginForm', () => {
   })
 
   it('renders all form elements correctly', () => {
-    render(<LoginForm />)
+    render(
+      <TestWrapper>
+        <LoginForm />
+      </TestWrapper>
+    )
 
     expect(screen.getByRole('heading', { name: '用户登录' })).toBeInTheDocument()
     expect(screen.getByLabelText('用户名')).toBeInTheDocument()
@@ -57,7 +60,11 @@ describe('LoginForm', () => {
 
   it('validates required fields', async () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
-    render(<LoginForm />)
+    render(
+      <TestWrapper>
+        <LoginForm />
+      </TestWrapper>
+    )
 
     const submitButton = screen.getByRole('button', { name: '登录' })
     await user.click(submitButton)
@@ -70,7 +77,11 @@ describe('LoginForm', () => {
 
   it('validates username format', async () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
-    render(<LoginForm />)
+    render(
+      <TestWrapper>
+        <LoginForm />
+      </TestWrapper>
+    )
 
     const usernameInput = screen.getByLabelText('用户名')
     const submitButton = screen.getByRole('button', { name: '登录' })
@@ -104,7 +115,11 @@ describe('LoginForm', () => {
 
   it('validates password length', async () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
-    render(<LoginForm />)
+    render(
+      <TestWrapper>
+        <LoginForm />
+      </TestWrapper>
+    )
 
     const passwordInput = screen.getByLabelText('密码')
     const submitButton = screen.getByRole('button', { name: '登录' })
@@ -130,7 +145,11 @@ describe('LoginForm', () => {
       json: async () => mockResponse,
     })
 
-    render(<LoginForm />)
+    render(
+      <TestWrapper>
+        <LoginForm />
+      </TestWrapper>
+    )
 
     await user.type(screen.getByLabelText('用户名'), 'testuser')
     await user.type(screen.getByLabelText('密码'), 'password123')
@@ -143,6 +162,15 @@ describe('LoginForm', () => {
     // Check that token is stored in sessionStorage (rememberMe was false)
     expect(sessionStorage.getItem('auth_token')).toBe('mock-jwt-token')
     expect(localStorage.getItem('auth_token')).toBeNull()
+
+    // Advance timers to trigger navigation
+    act(() => {
+      jest.advanceTimersByTime(1500)
+    })
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/dashboard')
+    })
   })
 
   it('handles successful login with localStorage (rememberMe checked)', async () => {
@@ -158,7 +186,11 @@ describe('LoginForm', () => {
       json: async () => mockResponse,
     })
 
-    render(<LoginForm />)
+    render(
+      <TestWrapper>
+        <LoginForm />
+      </TestWrapper>
+    )
 
     await user.type(screen.getByLabelText('用户名'), 'testuser')
     await user.type(screen.getByLabelText('密码'), 'password123')
@@ -172,6 +204,15 @@ describe('LoginForm', () => {
     // Check that token is stored in localStorage (rememberMe was true)
     expect(localStorage.getItem('auth_token')).toBe('mock-jwt-token')
     expect(sessionStorage.getItem('auth_token')).toBeNull()
+
+    // Advance timers to trigger navigation
+    act(() => {
+      jest.advanceTimersByTime(1500)
+    })
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/dashboard')
+    })
   })
 
   it('handles login failure', async () => {
@@ -185,7 +226,11 @@ describe('LoginForm', () => {
       json: async () => mockResponse,
     })
 
-    render(<LoginForm />)
+    render(
+      <TestWrapper>
+        <LoginForm />
+      </TestWrapper>
+    )
 
     await user.type(screen.getByLabelText('用户名'), 'testuser')
     await user.type(screen.getByLabelText('密码'), 'wrongpassword')
@@ -201,7 +246,11 @@ describe('LoginForm', () => {
 
     mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
-    render(<LoginForm />)
+    render(
+      <TestWrapper>
+        <LoginForm />
+      </TestWrapper>
+    )
 
     await user.type(screen.getByLabelText('用户名'), 'testuser')
     await user.type(screen.getByLabelText('密码'), 'password123')
@@ -218,13 +267,17 @@ describe('LoginForm', () => {
     let resolvePromise: () => void
     const mockPromise = new Promise<Response>((resolve) => {
       resolvePromise = () => resolve({
-        json: async () => ({ success: true, message: '登录成功', token: 'token' }),
+        json: async () => ({ success: true, message: '登录成功', token: 'token', user: {} }),
       } as Response)
     })
 
     mockFetch.mockImplementationOnce(() => mockPromise)
 
-    render(<LoginForm />)
+    render(
+      <TestWrapper>
+        <LoginForm />
+      </TestWrapper>
+    )
 
     await user.type(screen.getByLabelText('用户名'), 'testuser')
     await user.type(screen.getByLabelText('密码'), 'password123')
@@ -259,7 +312,11 @@ describe('LoginForm', () => {
       json: async () => mockResponse,
     })
 
-    render(<LoginForm />)
+    render(
+      <TestWrapper>
+        <LoginForm />
+      </TestWrapper>
+    )
 
     await user.type(screen.getByLabelText('用户名'), 'testuser')
     await user.type(screen.getByLabelText('密码'), 'password123')
@@ -273,8 +330,14 @@ describe('LoginForm', () => {
     // Verify that URLSearchParams.get was called with 'redirect'
     expect(mockGet).toHaveBeenCalledWith('redirect')
     
-    // Verify that the redirect logic was triggered by checking the success message
-    expect(screen.getByText('登录成功')).toBeInTheDocument()
+    // Advance timers to trigger navigation
+    act(() => {
+      jest.advanceTimersByTime(1500)
+    })
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/profile')
+    })
   })
 
   it('sends correct request body', async () => {
@@ -290,7 +353,11 @@ describe('LoginForm', () => {
       json: async () => mockResponse,
     })
 
-    render(<LoginForm />)
+    render(
+      <TestWrapper>
+        <LoginForm />
+      </TestWrapper>
+    )
 
     await user.type(screen.getByLabelText('用户名'), 'testuser')
     await user.type(screen.getByLabelText('密码'), 'password123')
@@ -306,5 +373,28 @@ describe('LoginForm', () => {
         password: 'password123',
       }),
     })
+  })
+
+  it('toggles password visibility', async () => {
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+    render(
+      <TestWrapper>
+        <LoginForm />
+      </TestWrapper>
+    )
+
+    const passwordInput = screen.getByLabelText('密码') as HTMLInputElement
+    const toggleButton = screen.getByRole('button', { name: '' }) // Eye icon button
+
+    // Initially password should be hidden
+    expect(passwordInput.type).toBe('password')
+
+    // Click to show password
+    await user.click(toggleButton)
+    expect(passwordInput.type).toBe('text')
+
+    // Click to hide password again
+    await user.click(toggleButton)
+    expect(passwordInput.type).toBe('password')
   })
 }) 

@@ -14,12 +14,12 @@ const customJestConfig = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  collectCoverageFrom: [
-    'src/**/*.{js,jsx,ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/app/layout.tsx',
-    '!src/app/globals.css',
-  ],
+  // 暂时禁用覆盖率收集以避免chalk问题
+  collectCoverage: false,
+  // 添加chalk问题的解决方案
+  testEnvironmentOptions: {
+    customExportConditions: [''],
+  },
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

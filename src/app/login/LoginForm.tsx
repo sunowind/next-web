@@ -2,7 +2,16 @@
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
 import { LoginResponse } from '@/types/user'
+import { useAuth } from '@/components/auth/auth-context'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Loader2, Eye, EyeOff } from 'lucide-react'
 
 interface LoginFormData {
   username: string
@@ -12,10 +21,14 @@ interface LoginFormData {
 
 export function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const [submitMessage, setSubmitMessage] = useState<{
     type: 'success' | 'error'
     text: string
   } | null>(null)
+  
+  const router = useRouter()
+  const { login } = useAuth()
 
   const {
     register,
@@ -41,11 +54,9 @@ export function LoginForm() {
 
       const result: LoginResponse = await response.json()
 
-      if (result.success && result.token) {
-        // 保存token到localStorage或sessionStorage
-        const storage = data.rememberMe ? localStorage : sessionStorage
-        storage.setItem('auth_token', result.token)
-        storage.setItem('user', JSON.stringify(result.user))
+      if (result.success && result.token && result.user) {
+        // 使用认证上下文登录
+        login(result.token, result.user, data.rememberMe)
 
         setSubmitMessage({ type: 'success', text: result.message })
         
@@ -55,7 +66,7 @@ export function LoginForm() {
         
         // 延迟重定向，让用户看到成功消息
         setTimeout(() => {
-          window.location.href = redirect
+          router.push(redirect)
         }, 1500)
       } else {
         setSubmitMessage({ type: 'error', text: result.message })
@@ -68,133 +79,129 @@ export function LoginForm() {
   }
 
   return (
-    <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
-        用户登录
-      </h2>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* 用户名字段 */}
-        <div>
-          <label
-            htmlFor="username"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            用户名
-          </label>
-          <input
-            id="username"
-            type="text"
-            {...register('username', {
-              required: '用户名不能为空',
-              minLength: { value: 3, message: '用户名至少需要3个字符' },
-              maxLength: { value: 20, message: '用户名不能超过20个字符' },
-              pattern: {
-                value: /^[a-zA-Z0-9_]+$/,
-                message: '用户名只能包含字母、数字和下划线',
-              },
-            })}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.username ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="请输入用户名"
-          />
-          {errors.username && (
-            <p className="mt-1 text-sm text-red-500">
-              {errors.username.message}
-            </p>
-          )}
-        </div>
-
-        {/* 密码字段 */}
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            密码
-          </label>
-          <input
-            id="password"
-            type="password"
-            {...register('password', {
-              required: '密码不能为空',
-              minLength: { value: 6, message: '密码至少需要6个字符' },
-            })}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.password ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="请输入密码"
-          />
-          {errors.password && (
-            <p className="mt-1 text-sm text-red-500">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
-
-        {/* 记住我选项 */}
-        <div className="flex items-center">
-          <input
-            id="rememberMe"
-            type="checkbox"
-            {...register('rememberMe')}
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-          />
-          <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
-            记住我
-          </label>
-        </div>
-
-        {/* 提交按钮 */}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
-            isSubmitting
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
-          } text-white`}
-        >
-          {isSubmitting ? '登录中...' : '登录'}
-        </button>
-
-        {/* 提交结果提示 */}
-        {submitMessage && (
-          <div
-            className={`p-3 rounded-md ${
-              submitMessage.type === 'success'
-                ? 'bg-green-50 text-green-700 border border-green-200'
-                : 'bg-red-50 text-red-700 border border-red-200'
-            }`}
-          >
-            {submitMessage.text}
+    <Card className="w-full max-w-md">
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl text-center">用户登录</CardTitle>
+        <CardDescription className="text-center">
+          请输入您的账号信息进行登录
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* 用户名字段 */}
+          <div className="space-y-2">
+            <Label htmlFor="username">用户名</Label>
+            <Input
+              id="username"
+              type="text"
+              placeholder="请输入用户名"
+              {...register('username', {
+                required: '用户名不能为空',
+                minLength: { value: 3, message: '用户名至少需要3个字符' },
+                maxLength: { value: 20, message: '用户名不能超过20个字符' },
+                pattern: {
+                  value: /^[a-zA-Z0-9_]+$/,
+                  message: '用户名只能包含字母、数字和下划线',
+                },
+              })}
+              className={errors.username ? 'border-red-500' : ''}
+            />
+            {errors.username && (
+              <p className="text-sm text-red-500">{errors.username.message}</p>
+            )}
           </div>
-        )}
-      </form>
 
-      {/* 注册链接 */}
-      <div className="mt-6 text-center">
-        <span className="text-sm text-gray-600">
-          还没有账号？{' '}
-          <a
-            href="/register"
-            className="text-blue-600 hover:text-blue-500 font-medium"
+          {/* 密码字段 */}
+          <div className="space-y-2">
+            <Label htmlFor="password">密码</Label>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="请输入密码"
+                {...register('password', {
+                  required: '密码不能为空',
+                  minLength: { value: 6, message: '密码至少需要6个字符' },
+                })}
+                className={errors.password ? 'border-red-500 pr-10' : 'pr-10'}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+            {errors.password && (
+              <p className="text-sm text-red-500">{errors.password.message}</p>
+            )}
+          </div>
+
+          {/* 记住我选项 */}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="rememberMe"
+              {...register('rememberMe')}
+            />
+            <Label htmlFor="rememberMe" className="text-sm font-normal">
+              记住我
+            </Label>
+          </div>
+
+          {/* 提交按钮 */}
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full"
           >
-            立即注册
-          </a>
-        </span>
-      </div>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                登录中...
+              </>
+            ) : (
+              '登录'
+            )}
+          </Button>
 
-      {/* 忘记密码链接 */}
-      <div className="mt-2 text-center">
-        <a
-          href="/forgot-password"
-          className="text-sm text-blue-600 hover:text-blue-500"
-        >
-          忘记密码？
-        </a>
-      </div>
-    </div>
+          {/* 提交结果提示 */}
+          {submitMessage && (
+            <Alert variant={submitMessage.type === 'success' ? 'default' : 'destructive'}>
+              <AlertDescription>{submitMessage.text}</AlertDescription>
+            </Alert>
+          )}
+        </form>
+
+        {/* 注册链接 */}
+        <div className="mt-6 text-center">
+          <span className="text-sm text-muted-foreground">
+            还没有账号？{' '}
+            <a
+              href="/register"
+              className="text-primary hover:underline font-medium"
+            >
+              立即注册
+            </a>
+          </span>
+        </div>
+
+        {/* 忘记密码链接 */}
+        <div className="mt-2 text-center">
+          <a
+            href="/forgot-password"
+            className="text-sm text-primary hover:underline"
+          >
+            忘记密码？
+          </a>
+        </div>
+      </CardContent>
+    </Card>
   )
 } 

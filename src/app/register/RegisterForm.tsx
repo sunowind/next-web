@@ -3,11 +3,9 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
-import zxcvbn from 'zxcvbn'
 
 interface RegisterFormData {
   username: string
-  email?: string
   password: string
   confirmPassword: string
 }
@@ -36,51 +34,6 @@ export function RegisterForm() {
 
   const watchPassword = watch('password', '')
 
-  // 密码强度检测
-  const getPasswordStrength = (password: string) => {
-    if (!password) return { score: 0, feedback: '' }
-    const result = zxcvbn(password)
-    const strengthLabels = ['很弱', '弱', '一般', '强', '很强']
-    const strengthColors = [
-      'text-red-500',
-      'text-orange-500',
-      'text-yellow-500',
-      'text-blue-500',
-      'text-green-500',
-    ]
-
-    return {
-      score: result.score,
-      label: strengthLabels[result.score],
-      color: strengthColors[result.score],
-      feedback: result.feedback.suggestions.join(' '),
-    }
-  }
-
-  const passwordStrength = getPasswordStrength(watchPassword)
-
-  // 增强的密码验证
-  const validatePassword = (value: string) => {
-    if (!value) return '密码不能为空'
-    if (value.length < 8) return '密码至少需要8个字符'
-    if (value.length > 50) return '密码不能超过50个字符'
-    
-    const hasUpperCase = /[A-Z]/.test(value)
-    const hasLowerCase = /[a-z]/.test(value)
-    const hasNumbers = /\d/.test(value)
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value)
-    
-    if (!hasUpperCase) return '密码必须包含至少一个大写字母'
-    if (!hasLowerCase) return '密码必须包含至少一个小写字母'
-    if (!hasNumbers) return '密码必须包含至少一个数字'
-    if (!hasSpecialChar) return '密码必须包含至少一个特殊字符'
-    
-    const strength = zxcvbn(value)
-    if (strength.score < 2) return '密码强度太弱，请使用更复杂的密码'
-    
-    return true
-  }
-
   const onSubmit = async (data: RegisterFormData) => {
     setIsSubmitting(true)
     setSubmitMessage(null)
@@ -93,7 +46,6 @@ export function RegisterForm() {
         },
         body: JSON.stringify({
           username: data.username,
-          email: data.email || undefined,
           password: data.password,
         }),
       })
@@ -138,10 +90,6 @@ export function RegisterForm() {
               required: '用户名不能为空',
               minLength: { value: 3, message: '用户名至少需要3个字符' },
               maxLength: { value: 20, message: '用户名不能超过20个字符' },
-              pattern: {
-                value: /^[a-zA-Z0-9_]+$/,
-                message: '用户名只能包含字母、数字和下划线',
-              },
             })}
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.username ? 'border-red-500' : 'border-gray-300'
@@ -152,36 +100,6 @@ export function RegisterForm() {
           {errors.username && (
             <p id="username-error" className="mt-1 text-sm text-red-500">
               {errors.username.message}
-            </p>
-          )}
-        </div>
-
-        {/* 邮箱字段 */}
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            邮箱 <span className="text-gray-500 text-xs">(可选，用于密码找回)</span>
-          </label>
-          <input
-            id="email"
-            type="email"
-            {...register('email', {
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: '请输入有效的邮箱地址',
-              },
-            })}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.email ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="请输入邮箱地址"
-            aria-describedby={errors.email ? 'email-error' : undefined}
-          />
-          {errors.email && (
-            <p id="email-error" className="mt-1 text-sm text-red-500">
-              {errors.email.message}
             </p>
           )}
         </div>
@@ -198,7 +116,8 @@ export function RegisterForm() {
             id="password"
             type="password"
             {...register('password', {
-              validate: validatePassword,
+              required: '密码不能为空',
+              minLength: { value: 6, message: '密码至少需要6个字符' },
             })}
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.password ? 'border-red-500' : 'border-gray-300'
@@ -210,52 +129,6 @@ export function RegisterForm() {
             <p id="password-error" className="mt-1 text-sm text-red-500">
               {errors.password.message}
             </p>
-          )}
-
-          {/* 密码要求提示 */}
-          <div className="mt-2 text-xs text-gray-600">
-            <p>密码要求：</p>
-            <ul className="list-disc list-inside space-y-1 mt-1">
-              <li>8-50个字符</li>
-              <li>包含大小写字母</li>
-              <li>包含数字</li>
-              <li>包含特殊字符</li>
-            </ul>
-          </div>
-
-          {/* 密码强度指示器 */}
-          {watchPassword && (
-            <div className="mt-2">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">密码强度:</span>
-                <span
-                  className={`text-sm font-medium ${passwordStrength.color}`}
-                >
-                  {passwordStrength.label}
-                </span>
-              </div>
-              <div className="mt-1 w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    passwordStrength.score === 0
-                      ? 'bg-red-500'
-                      : passwordStrength.score === 1
-                        ? 'bg-orange-500'
-                        : passwordStrength.score === 2
-                          ? 'bg-yellow-500'
-                          : passwordStrength.score === 3
-                            ? 'bg-blue-500'
-                            : 'bg-green-500'
-                  }`}
-                  style={{ width: `${(passwordStrength.score + 1) * 20}%` }}
-                />
-              </div>
-              {passwordStrength.feedback && (
-                <p className="mt-1 text-xs text-gray-600">
-                  {passwordStrength.feedback}
-                </p>
-              )}
-            </div>
           )}
         </div>
 
