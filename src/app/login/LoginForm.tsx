@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { LoginRequest, LoginResponse } from '@/types/user'
+import { LoginResponse } from '@/types/user'
 
 interface LoginFormData {
   username: string

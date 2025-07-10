@@ -35,7 +35,6 @@ export function RegisterForm() {
   })
 
   const watchPassword = watch('password', '')
-  const watchEmail = watch('email', '')
 
   // 密码强度检测
   const getPasswordStrength = (password: string) => {

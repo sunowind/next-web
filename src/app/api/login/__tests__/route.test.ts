@@ -1,14 +1,19 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { POST } from '../route'
 import bcrypt from 'bcryptjs'
 
 // Mock Next.js server components
 jest.mock('next/server', () => ({
   NextRequest: class MockNextRequest {
-    constructor(url, options = {}) {
+    url: string
+    method: string
+    headers: Map<string, string>
+    _body: string
+    constructor(url: string, options: { method?: string; headers?: Record<string, string>; body?: string } = {}) {
       this.url = url
       this.method = options.method || 'GET'
       this.headers = new Map(Object.entries(options.headers || {}))
-      this._body = options.body
+      this._body = options.body || ''
     }
 
     async json() {
@@ -20,7 +25,7 @@ jest.mock('next/server', () => ({
     }
   },
   NextResponse: {
-    json: (body, options = {}) => ({
+    json: (body: unknown, options: { status?: number; statusText?: string } = {}) => ({
       json: async () => body,
       status: options.status || 200,
       statusText: options.statusText || 'OK',
@@ -65,7 +70,7 @@ describe('Login API', () => {
     mockValidation.validatePassword.mockReturnValue({ isValid: true })
   })
 
-  const createRequest = (body: any) => {
+  const createRequest = (body: Record<string, unknown>) => {
     const { NextRequest } = require('next/server')
     return new NextRequest('http://localhost:3000/api/login', {
       method: 'POST',
@@ -151,7 +156,7 @@ describe('Login API', () => {
       }
 
       mockPrisma.user.findUnique.mockResolvedValue(mockUser)
-      mockBcrypt.compare.mockResolvedValue(false)
+      (mockBcrypt.compare as jest.Mock).mockResolvedValue(false)
 
       const request = createRequest({ username: 'testuser', password: 'wrongpassword' })
       const response = await POST(request)
@@ -183,7 +188,7 @@ describe('Login API', () => {
       }
 
       mockPrisma.user.findUnique.mockResolvedValue(mockUser)
-      mockBcrypt.compare.mockResolvedValue(true)
+      (mockBcrypt.compare as jest.Mock).mockResolvedValue(true)
       mockJwt.signToken.mockReturnValue('mock-jwt-token')
 
       const request = createRequest({ username: 'testuser', password: 'correctpassword' })
@@ -225,7 +230,7 @@ describe('Login API', () => {
       }
 
       mockPrisma.user.findUnique.mockResolvedValue(mockUser)
-      mockBcrypt.compare.mockResolvedValue(false)
+      (mockBcrypt.compare as jest.Mock).mockResolvedValue(false)
 
       const request = createRequest({ username: 'testuser', password: 'wrongpassword' })
       const response = await POST(request)
@@ -282,7 +287,7 @@ describe('Login API', () => {
       }
 
       mockPrisma.user.findUnique.mockResolvedValue(mockUser)
-      mockBcrypt.compare.mockResolvedValue(true)
+      (mockBcrypt.compare as jest.Mock).mockResolvedValue(true)
       mockJwt.signToken.mockReturnValue('mock-jwt-token')
 
       const request = createRequest({ username: 'testuser', password: 'correctpassword' })
@@ -306,7 +311,7 @@ describe('Login API', () => {
       }
 
       mockPrisma.user.findUnique.mockResolvedValue(mockUser)
-      mockBcrypt.compare.mockResolvedValue(false)
+      (mockBcrypt.compare as jest.Mock).mockResolvedValue(false)
 
       const request = createRequest({ username: 'testuser', password: 'wrongpassword' })
       const response = await POST(request)
@@ -361,7 +366,7 @@ describe('Login API', () => {
       }
 
       mockPrisma.user.findUnique.mockResolvedValue(mockUser)
-      mockBcrypt.compare.mockResolvedValue(true)
+      (mockBcrypt.compare as jest.Mock).mockResolvedValue(true)
       mockJwt.signToken.mockReturnValue('mock-jwt-token')
 
       const request = createRequest({ username: 'testuser', password: 'correctpassword' })

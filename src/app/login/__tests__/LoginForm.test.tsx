@@ -1,4 +1,5 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 import { LoginForm } from '../LoginForm'
@@ -10,16 +11,16 @@ global.fetch = mockFetch
 // Mock setTimeout to avoid navigation issues
 const originalSetTimeout = global.setTimeout
 beforeAll(() => {
-  ;(global as any).setTimeout = jest.fn((fn: any, delay: number) => {
+  ;(global as unknown as { setTimeout: (fn: (...args: unknown[]) => void, delay: number) => void }).setTimeout = jest.fn((fn: (...args: unknown[]) => void, _delay: number) => {
     if (typeof fn === 'function') {
       fn()
     }
-    return 1 as any
+    return 1 as unknown as number
   })
 })
 
 afterAll(() => {
-  ;(global as any).setTimeout = originalSetTimeout
+  ;(global as unknown as { setTimeout: (fn: (...args: unknown[]) => void, delay: number) => void }).setTimeout = originalSetTimeout
 })
 
 // Mock setTimeout to avoid timing issues in tests
