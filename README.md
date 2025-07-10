@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js SaaS Project
 
-## Getting Started
+## 项目简介
 
-First, run the development server:
+本项目是一个现代化的 SaaS（软件即服务）应用模板，适用于快速搭建多租户、权限管理、数据管理等场景。旨在帮助开发者高效构建高质量的 Web 应用。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+### 技术栈
+
+- **Next.js**  – React 服务器端渲染与静态站点生成
+- **TypeScript**  – 类型安全的 JavaScript 超集
+- **Tailwind CSS**  – 实用优先的 CSS 框架
+- **Shadcn UI**  – 现代化 UI 组件库
+- **Prisma**  – 现代数据库 ORM
+- **Supabase**  – 后端即服务（BaaS），提供认证、数据库等
+- **Vercel**  – 云端部署平台
+
+---
+
+## 主要特性
+
+- **用户管理**：支持注册、登录、资料编辑、用户列表等
+- **数据管理**：可扩展的数据模型与管理界面
+- **认证与授权**：集成 Supabase，支持 OAuth、邮箱登录等
+- **基于角色的访问控制（RBAC）**：灵活配置不同角色的权限
+- **仪表盘**：可视化数据与操作入口
+- **Markdown 编辑器**：核心功能，支持富文本编辑与预览
+
+---
+
+## 环境要求
+
+- Node.js >= 18.x
+- npm >= 9.x
+- 推荐使用 VSCode + Prettier + ESLint
+
+---
+
+## 环境变量与配置
+
+1. 复制 `.env.example` 为 `.env.local`，并根据实际情况填写：
+   - `DATABASE_URL`（Prisma 数据库连接）
+   - `SUPABASE_URL`、`SUPABASE_ANON_KEY`（Supabase 配置）
+   - 其他相关密钥
+2. 如需部署到 Vercel，确保在 Vercel 控制台配置上述环境变量。
+
+---
+
+## 安装与启动
+
+1. **安装依赖：**
+   ```bash
+   npm install
+   ```
+2. **本地开发：**
+   ```bash
+   npm run dev
+   ```
+   打开 [http://localhost:3000](http://localhost:3000) 查看应用。
+3. **数据库迁移（如有）：**
+   ```bash
+   npx prisma migrate dev
+   ```
+
+---
+
+## 常用脚本
+
+- `npm run dev` – 启动开发服务器
+- `npm run build` – 构建生产包
+- `npm run start` – 启动生产环境
+- `npm run lint` – 代码检查
+- `npm run format` – 代码格式化
+- `npx prisma studio` – Prisma 可视化数据库管理
+
+---
+
+## 项目结构
+
+```text
+src/app/      # 主应用代码
+public/       # 静态资源
+story/        # 用户故事与文档
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 常见问题（FAQ）
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Q: 如何更换数据库？**  
+A: 修改 `.env.local` 中的 `DATABASE_URL`，并运行 `npx prisma migrate dev`。
 
-## Learn More
+**Q: Supabase 如何配置？**  
+A: 在 Supabase 控制台获取 URL 和 Key，填入 `.env.local`。
 
-To learn more about Next.js, take a look at the following resources:
+**Q: 如何添加新页面？**  
+A: 在 `src/app/` 下新增对应的页面文件即可。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
