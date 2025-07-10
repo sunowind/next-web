@@ -18,11 +18,11 @@ jest.mock('bcryptjs')
 
 const mockPrisma = prisma as unknown as {
   user: {
-    findUnique: jest.MockedFunction<any>
-    update: jest.MockedFunction<any>
+    findUnique: jest.MockedFunction<() => Promise<typeof mockUser | null>>
+    update: jest.MockedFunction<() => Promise<typeof mockUser>>
   },
   userActivityLog: {
-    create: jest.MockedFunction<any>
+    create: jest.MockedFunction<() => Promise<{ id: string; userId: string; activityType: string; createdAt: Date }>>
   }
 }
 const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>

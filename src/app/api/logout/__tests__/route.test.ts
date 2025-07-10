@@ -7,6 +7,7 @@ jest.mock('next/server', () => {
 })
 
 import { POST } from '../route'
+import { NextRequest } from 'next/server'
 
 jest.mock('@/lib/auth', () => ({
   getAuthFromRequest: jest.fn(),
@@ -38,20 +39,20 @@ describe('POST /api/logout', () => {
     jest.clearAllMocks()
   })
 
-  const createMockRequest = (headers: Record<string, any> = {}, cookies: Record<string, any> = {}) => {
+  const createMockRequest = (headers: Record<string, string> = {}, cookies: Record<string, string> = {}) => {
     return {
       method: 'POST',
       headers: {
-        get: (name: any) => {
+        get: (name: string) => {
           const found = Object.keys(headers).find(k => k.toLowerCase() === name.toLowerCase())
           return found ? headers[found] : null
         },
-        has: (name: any) => {
+        has: (name: string) => {
           return Object.keys(headers).some(k => k.toLowerCase() === name.toLowerCase())
         },
       },
       cookies: {
-        get: (name: any) => {
+        get: (name: string) => {
           const value = cookies[name]
           return value ? { value } : undefined
         },
@@ -62,7 +63,7 @@ describe('POST /api/logout', () => {
           get: jest.fn(),
         },
       },
-    } as any
+    } as unknown as NextRequest
   }
 
   it('should return 401 when no valid auth is found', async () => {
@@ -76,7 +77,7 @@ describe('POST /api/logout', () => {
       { status: 401 }
     )
     expect(response.status).toBe(401)
-    expect((response.body! as any).success).toBe(false)
+    expect((response.body! as unknown as { success: boolean }).success).toBe(false)
   })
 
   it('should successfully logout with valid auth from header', async () => {
@@ -93,7 +94,7 @@ describe('POST /api/logout', () => {
       { status: 200 }
     )
     expect(response.status).toBe(200)
-    expect((response.body! as any).success).toBe(true)
+    expect((response.body! as unknown as { success: boolean }).success).toBe(true)
     expect(mockBlacklistToken).toHaveBeenCalledWith(mockToken)
     expect(mockPrisma.userActivityLog.create).toHaveBeenCalledWith({
       data: { userId: 'user123', activityType: 'logout' },
@@ -114,7 +115,7 @@ describe('POST /api/logout', () => {
       { status: 200 }
     )
     expect(response.status).toBe(200)
-    expect((response.body! as any).success).toBe(true)
+    expect((response.body! as unknown as { success: boolean }).success).toBe(true)
     expect(mockBlacklistToken).toHaveBeenCalledWith(mockToken)
     expect(mockPrisma.userActivityLog.create).toHaveBeenCalledWith({
       data: { userId: 'user123', activityType: 'logout' },
@@ -135,7 +136,7 @@ describe('POST /api/logout', () => {
       { status: 200 }
     )
     expect(response.status).toBe(200)
-    expect((response.body! as any).success).toBe(true)
+    expect((response.body! as unknown as { success: boolean }).success).toBe(true)
     expect(mockBlacklistToken).toHaveBeenCalledWith(mockToken)
   })
 
@@ -151,7 +152,7 @@ describe('POST /api/logout', () => {
       { status: 200 }
     )
     expect(response.status).toBe(200)
-    expect((response.body! as any).success).toBe(true)
+    expect((response.body! as unknown as { success: boolean }).success).toBe(true)
     expect(mockBlacklistToken).not.toHaveBeenCalled()
   })
 
@@ -164,6 +165,6 @@ describe('POST /api/logout', () => {
       { status: 500 }
     )
     expect(response.status).toBe(500)
-    expect((response.body! as any).success).toBe(false)
+    expect((response.body! as unknown as { success: boolean }).success).toBe(false)
   })
 }) 

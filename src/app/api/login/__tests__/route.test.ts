@@ -4,7 +4,7 @@ jest.mock('next/server', () => {
   return {
     ...actual,
     NextResponse: {
-      json: (body: any, options?: any) => ({
+      json: (body: unknown, options?: { status?: number }) => ({
         body,
         status: options?.status ?? 200,
         json: async () => body,
@@ -14,6 +14,7 @@ jest.mock('next/server', () => {
 })
 
 import { POST } from '../route'
+import { NextRequest } from 'next/server'
 
 // Mock dependencies
 jest.mock('@/lib/prisma', () => ({
@@ -32,17 +33,17 @@ jest.mock('bcryptjs', () => ({
   compare: jest.fn(),
 }))
 
-const mockPrisma = require('@/lib/prisma').prisma
-const mockSignToken = require('@/lib/jwt').signToken
-const mockBcryptCompare = require('bcryptjs').compare
+import { prisma as mockPrisma } from '@/lib/prisma'
+import { signToken as mockSignToken } from '@/lib/jwt'
+import { compare as mockBcryptCompare } from 'bcryptjs'
 
 // Helper function to create mock request
-function createMockRequest(body: any) {
+function createMockRequest(body: unknown) {
   return {
     json: async () => body,
-  } as any
+  } as unknown as NextRequest
 }
-
+1
 describe('POST /api/login', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -51,7 +52,7 @@ describe('POST /api/login', () => {
   it('should return 400 when username is missing', async () => {
     const request = createMockRequest({ password: 'password123' })
     const response = await POST(request)
-    const data = response.body as any
+    const data = response.body as unknown as { success: boolean; message: string }
     expect(response.status).toBe(400)
     expect(data.success).toBe(false)
     expect(data.message).toBe('用户名和密码不能为空')
@@ -60,7 +61,7 @@ describe('POST /api/login', () => {
   it('should return 400 when password is missing', async () => {
     const request = createMockRequest({ username: 'testuser' })
     const response = await POST(request)
-    const data = response.body as any
+    const data = response.body as unknown as { success: boolean; message: string }
     expect(response.status).toBe(400)
     expect(data.success).toBe(false)
     expect(data.message).toBe('用户名和密码不能为空')
@@ -70,7 +71,7 @@ describe('POST /api/login', () => {
     mockPrisma.user.findUnique.mockResolvedValue(null)
     const request = createMockRequest({ username: 'nonexistent', password: 'password123' })
     const response = await POST(request)
-    const data = response.body as any
+    const data = response.body as unknown as { success: boolean; message: string }
     expect(response.status).toBe(401)
     expect(data.success).toBe(false)
     expect(data.message).toBe('用户名或密码错误')
@@ -91,7 +92,7 @@ describe('POST /api/login', () => {
     mockBcryptCompare.mockResolvedValue(false)
     const request = createMockRequest({ username: 'testuser', password: 'wrongpassword' })
     const response = await POST(request)
-    const data = response.body as any
+    const data = response.body as unknown as { success: boolean; message: string }
     expect(response.status).toBe(401)
     expect(data.success).toBe(false)
     expect(data.message).toBe('用户名或密码错误')
@@ -111,7 +112,7 @@ describe('POST /api/login', () => {
     mockSignToken.mockReturnValue('mock-jwt-token')
     const request = createMockRequest({ username: 'testuser', password: 'password123' })
     const response = await POST(request)
-    const data = response.body as any
+    const data = response.body as unknown as { success: boolean; message: string; token: string; user: unknown }
     expect(response.status).toBe(200)
     expect(data.success).toBe(true)
     expect(data.message).toBe('登录成功')
@@ -132,7 +133,7 @@ describe('POST /api/login', () => {
     mockPrisma.user.findUnique.mockRejectedValue(new Error('Database error'))
     const request = createMockRequest({ username: 'testuser', password: 'password123' })
     const response = await POST(request)
-    const data = response.body as any
+    const data = response.body as unknown as { success: boolean; message: string }
     expect(response.status).toBe(500)
     expect(data.success).toBe(false)
     expect(data.message).toBe('服务器内部错误，请稍后重试')

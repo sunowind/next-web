@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ChangePasswordForm } from '../change-password-form'
 import { useAuth } from '@/components/auth/auth-context'

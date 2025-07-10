@@ -8,8 +8,8 @@ jest.mock('@/lib/prisma', () => ({
 }))
 
 import { POST } from '../route'
-// 用require方式引入prisma，确保mock生效
-const { prisma } = require('@/lib/prisma')
+// 用import方式引入prisma，确保mock生效
+import { prisma } from '@/lib/prisma'
 
 describe('/api/auth/verify-code', () => {
   beforeEach(() => {

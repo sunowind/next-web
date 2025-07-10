@@ -140,3 +140,27 @@ if (typeof globalThis.TextEncoder === 'undefined') {
 afterEach(() => {
   jest.clearAllMocks()
 })
+
+// 屏蔽 console.error 日志
+const originalError = console.error
+beforeAll(() => {
+  console.error = (...args) => {
+    // 只屏蔽特定的错误信息，保留其他错误
+    if (
+      typeof args[0] === 'string' && 
+      (args[0].includes('找回密码错误:') ||
+       args[0].includes('重置密码错误:') ||
+       args[0].includes('验证码验证错误:') ||
+       args[0].includes('登录API错误:') ||
+       args[0].includes('修改密码错误:') ||
+       args[0].includes('认证检查失败:'))
+    ) {
+      return
+    }
+    originalError.call(console, ...args)
+  }
+})
+
+afterAll(() => {
+  console.error = originalError
+})

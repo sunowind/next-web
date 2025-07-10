@@ -173,7 +173,7 @@ describe('LoginForm', () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
     
     // Mock a delayed response
-    let resolvePromise: (value: any) => void
+    let resolvePromise: (value: unknown) => void
     const mockPromise = new Promise(resolve => {
       resolvePromise = resolve
     })

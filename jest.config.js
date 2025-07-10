@@ -20,6 +20,8 @@ const customJestConfig = {
   testEnvironmentOptions: {
     customExportConditions: [''],
   },
+  // 屏蔽 console.error 日志
+  silent: true,
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

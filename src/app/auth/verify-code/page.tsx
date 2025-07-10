@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { ArrowLeft, Key } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export default function VerifyCodePage() {
@@ -57,6 +57,7 @@ export default function VerifyCodePage() {
 
     } catch (error) {
       setError('网络错误，请重试')
+      console.error(error)
     } finally {
       setIsLoading(false)
     }
