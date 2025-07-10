@@ -6,7 +6,7 @@ import { AuthUser } from '@/lib/auth'
 interface AuthContextType {
   user: AuthUser | null
   isLoading: boolean
-  login: (token: string, user: AuthUser, rememberMe: boolean) => void
+  login: (token: string, user: AuthUser) => void
   logout: () => void
   isAuthenticated: boolean
 }
@@ -21,8 +21,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // 检查本地存储中的认证信息
     const checkAuth = () => {
       try {
-        const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
-        const userStr = localStorage.getItem('user') || sessionStorage.getItem('user')
+        const token = localStorage.getItem('auth_token')
+        const userStr = localStorage.getItem('user')
 
         if (token && userStr) {
           const userData = JSON.parse(userStr) as AuthUser
@@ -33,8 +33,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // 清除无效的认证信息
         localStorage.removeItem('auth_token')
         localStorage.removeItem('user')
-        sessionStorage.removeItem('auth_token')
-        sessionStorage.removeItem('user')
       } finally {
         setIsLoading(false)
       }
@@ -43,18 +41,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth()
   }, [])
 
-  const login = (token: string, userData: AuthUser, rememberMe: boolean) => {
-    const storage = rememberMe ? localStorage : sessionStorage
-    storage.setItem('auth_token', token)
-    storage.setItem('user', JSON.stringify(userData))
+  const login = (token: string, userData: AuthUser) => {
+    localStorage.setItem('auth_token', token)
+    localStorage.setItem('user', JSON.stringify(userData))
     setUser(userData)
   }
 
   const logout = () => {
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user')
-    sessionStorage.removeItem('auth_token')
-    sessionStorage.removeItem('user')
     setUser(null)
   }
 

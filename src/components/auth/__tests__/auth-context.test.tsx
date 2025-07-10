@@ -11,7 +11,7 @@ function TestComponent() {
       <div data-testid="loading">{isLoading.toString()}</div>
       <div data-testid="authenticated">{isAuthenticated.toString()}</div>
       <div data-testid="user">{user ? user.username : 'no-user'}</div>
-      <button onClick={() => login('token', { id: '1', username: 'testuser', createdAt: new Date(), updatedAt: new Date() }, false)}>
+      <button onClick={() => login('token', { id: '1', username: 'testuser', createdAt: new Date(), updatedAt: new Date() })}>
         Login
       </button>
       <button onClick={logout}>Logout</button>
@@ -22,17 +22,20 @@ function TestComponent() {
 describe('AuthContext', () => {
   beforeEach(() => {
     localStorage.clear()
-    sessionStorage.clear()
   })
 
-  it('provides initial state correctly', () => {
+  it('provides initial state correctly', async () => {
     render(
       <AuthProvider>
         <TestComponent />
       </AuthProvider>
     )
 
-    expect(screen.getByTestId('loading')).toHaveTextContent('true')
+    // 等待初始加载完成
+    await waitFor(() => {
+      expect(screen.getByTestId('loading')).toHaveTextContent('false')
+    })
+
     expect(screen.getByTestId('authenticated')).toHaveTextContent('false')
     expect(screen.getByTestId('user')).toHaveTextContent('no-user')
   })
@@ -41,25 +44,6 @@ describe('AuthContext', () => {
     const mockUser = { id: '1', username: 'testuser', createdAt: new Date(), updatedAt: new Date() }
     localStorage.setItem('auth_token', 'mock-token')
     localStorage.setItem('user', JSON.stringify(mockUser))
-
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>
-    )
-
-    await waitFor(() => {
-      expect(screen.getByTestId('loading')).toHaveTextContent('false')
-    })
-
-    expect(screen.getByTestId('authenticated')).toHaveTextContent('true')
-    expect(screen.getByTestId('user')).toHaveTextContent('testuser')
-  })
-
-  it('loads user from sessionStorage on mount', async () => {
-    const mockUser = { id: '1', username: 'testuser', createdAt: new Date(), updatedAt: new Date() }
-    sessionStorage.setItem('auth_token', 'mock-token')
-    sessionStorage.setItem('user', JSON.stringify(mockUser))
 
     render(
       <AuthProvider>
@@ -93,7 +77,7 @@ describe('AuthContext', () => {
     expect(screen.getByTestId('user')).toHaveTextContent('no-user')
   })
 
-  it('login function stores data in localStorage when rememberMe is true', async () => {
+  it('login function stores data in localStorage', async () => {
     render(
       <AuthProvider>
         <TestComponent />

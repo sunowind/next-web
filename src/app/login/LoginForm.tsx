@@ -8,20 +8,17 @@ import { useAuth } from '@/components/auth/auth-context'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, Eye, EyeOff } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
 interface LoginFormData {
   username: string
   password: string
-  rememberMe: boolean
 }
 
 export function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
   const [submitMessage, setSubmitMessage] = useState<{
     type: 'success' | 'error'
     text: string
@@ -55,19 +52,13 @@ export function LoginForm() {
       const result: LoginResponse = await response.json()
 
       if (result.success && result.token && result.user) {
-        // 使用认证上下文登录
-        login(result.token, result.user, data.rememberMe)
-
+        login(result.token, result.user)
         setSubmitMessage({ type: 'success', text: result.message })
         
-        // 重定向到目标页面
-        const urlParams = new URLSearchParams(window.location.search)
-        const redirect = urlParams.get('redirect') || '/dashboard'
-        
-        // 延迟重定向，让用户看到成功消息
+        // 重定向到dashboard
         setTimeout(() => {
-          router.push(redirect)
-        }, 1500)
+          router.push('/dashboard')
+        }, 1000)
       } else {
         setSubmitMessage({ type: 'error', text: result.message })
       }
@@ -97,12 +88,6 @@ export function LoginForm() {
               placeholder="请输入用户名"
               {...register('username', {
                 required: '用户名不能为空',
-                minLength: { value: 3, message: '用户名至少需要3个字符' },
-                maxLength: { value: 20, message: '用户名不能超过20个字符' },
-                pattern: {
-                  value: /^[a-zA-Z0-9_]+$/,
-                  message: '用户名只能包含字母、数字和下划线',
-                },
               })}
               className={errors.username ? 'border-red-500' : ''}
             />
@@ -114,45 +99,18 @@ export function LoginForm() {
           {/* 密码字段 */}
           <div className="space-y-2">
             <Label htmlFor="password">密码</Label>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="请输入密码"
-                {...register('password', {
-                  required: '密码不能为空',
-                  minLength: { value: 6, message: '密码至少需要6个字符' },
-                })}
-                className={errors.password ? 'border-red-500 pr-10' : 'pr-10'}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
+            <Input
+              id="password"
+              type="password"
+              placeholder="请输入密码"
+              {...register('password', {
+                required: '密码不能为空',
+              })}
+              className={errors.password ? 'border-red-500' : ''}
+            />
             {errors.password && (
               <p className="text-sm text-red-500">{errors.password.message}</p>
             )}
-          </div>
-
-          {/* 记住我选项 */}
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="rememberMe"
-              {...register('rememberMe')}
-            />
-            <Label htmlFor="rememberMe" className="text-sm font-normal">
-              记住我
-            </Label>
           </div>
 
           {/* 提交按钮 */}
@@ -190,16 +148,6 @@ export function LoginForm() {
               立即注册
             </a>
           </span>
-        </div>
-
-        {/* 忘记密码链接 */}
-        <div className="mt-2 text-center">
-          <a
-            href="/forgot-password"
-            className="text-sm text-primary hover:underline"
-          >
-            忘记密码？
-          </a>
         </div>
       </CardContent>
     </Card>
