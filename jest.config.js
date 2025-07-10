@@ -13,6 +13,7 @@ const customJestConfig = {
   testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^react-markdown$': '<rootDir>/src/lib/__mocks__/react-markdown.ts',
   },
   // 暂时禁用覆盖率收集以避免chalk问题
   collectCoverage: false,
