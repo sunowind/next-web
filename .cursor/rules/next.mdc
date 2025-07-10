@@ -1,4 +1,6 @@
-
+---
+alwaysApply: true
+---
 # Tech Stack
 - Expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, Tailwind CSS, Prisma, and Supabase.
 

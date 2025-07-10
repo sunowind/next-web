@@ -1,0 +1,24 @@
+---
+alwaysApply: true
+---
+技术栈
+frontend:
+- Next.js  – React 服务器端渲染与静态站点生成
+- TypeScript  – 类型安全的 JavaScript 超集
+- Tailwind CSS  – 实用优先的 CSS 框架
+- Shadcn UI  – 现代化 UI 组件库
+- React Hook Form
+- zxcvbn
+
+backend:
+- Prisma  – 现代数据库 ORM
+- Supabase  – 后端即服务（BaaS），提供认证、数据库等
+- Vercel  – 云端部署平台
+- Next.js API Routes  – 服务器端 API 路由
+- bcrypt  – 密码加密
+- jwt  – 认证 token
+
+test:
+- Jest
+- React Testing Library
+- Supertest
