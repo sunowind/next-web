@@ -22,6 +22,7 @@ POST /api/register
 ## 响应
 
 ### 成功响应 (201)
+
 ```json
 {
   "success": true,
@@ -33,6 +34,7 @@ POST /api/register
 ```
 
 ### 错误响应 (400)
+
 ```json
 {
   "success": false,
@@ -41,6 +43,7 @@ POST /api/register
 ```
 
 ### 用户已存在 (409)
+
 ```json
 {
   "success": false,
@@ -49,6 +52,7 @@ POST /api/register
 ```
 
 ### 服务器错误 (500)
+
 ```json
 {
   "success": false,
@@ -59,12 +63,14 @@ POST /api/register
 ## 验证规则
 
 ### 用户名
+
 - 不能为空
 - 长度：3-20 个字符
 - 只能包含字母、数字和下划线
 - 必须唯一
 
 ### 密码
+
 - 不能为空
 - 最小长度：6 个字符
 - 强度要求：使用 zxcvbn 检查，分数必须 ≥ 2
@@ -129,4 +135,4 @@ curl -X POST http://localhost:3000/api/register \
 curl -X POST http://localhost:3000/api/register \
   -H "Content-Type: application/json" \
   -d '{"username":"testuser","password":"StrongPassword123!"}'
-``` 
+```

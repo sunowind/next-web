@@ -76,11 +76,13 @@ curl -X POST http://localhost:3000/api/register \
 ## 技术实现
 
 ### Mock 策略
+
 - 使用 `jest.mock()` 模拟 Prisma 数据库操作
 - 使用 `jest.mock()` 模拟 bcrypt 密码加密
 - 使用 `jest.mock()` 模拟 zxcvbn 密码强度检测
 
 ### 测试工具
+
 - **Jest**: 测试框架
 - **@testing-library/jest-dom**: 断言库
 - **TypeScript**: 类型安全
@@ -110,4 +112,4 @@ npm test -- --coverage
 - Node.js 版本: 18+
 - Jest 版本: 29+
 - Next.js 版本: 15+
-- TypeScript 版本: 5+ 
+- TypeScript 版本: 5+
