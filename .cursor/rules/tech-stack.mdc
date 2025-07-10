@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: tech stack 技术栈
+alwaysApply: false
 ---
 技术栈
 frontend:
