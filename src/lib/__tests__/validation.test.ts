@@ -100,18 +100,19 @@ describe('validation', () => {
     it('should return invalid for short password', () => {
       const result = validatePassword('12345')
       expect(result.isValid).toBe(false)
-      expect(result.message).toBe('密码长度至少需要6个字符')
+      expect(result.message).toBe('密码长度至少需要8个字符')
     })
 
     it('should return invalid for weak password', () => {
       const result = validatePassword('123456')
       expect(result.isValid).toBe(false)
-      expect(result.message).toBe('密码强度太弱，请使用更复杂的密码')
+      expect(result.message).toBe('密码长度至少需要8个字符')
     })
 
     it('should return valid for medium strength password', () => {
       const result = validatePassword('password123')
-      expect(result.isValid).toBe(true)
+      expect(result.isValid).toBe(false)
+      expect(result.message).toContain('密码必须包含至少一个大写字母')
     })
   })
 
@@ -130,7 +131,7 @@ describe('validation', () => {
     it('should return invalid for invalid password', () => {
       const result = validateRegisterInput('testuser', '123')
       expect(result.isValid).toBe(false)
-      expect(result.message).toBe('密码长度至少需要6个字符')
+      expect(result.message).toBe('密码长度至少需要8个字符')
     })
 
     it('should prioritize username validation over password validation', () => {

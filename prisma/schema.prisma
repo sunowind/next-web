@@ -14,6 +14,7 @@ datasource db {
 model User {
   id               String    @id @default(cuid())
   username         String    @unique
+  email            String?   @unique
   password         String
   failedLoginCount Int       @default(0)
   lockedUntil      DateTime?

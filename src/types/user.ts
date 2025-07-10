@@ -1,12 +1,14 @@
 export interface User {
   id: string
   username: string
+  email?: string
   createdAt: Date
   updatedAt: Date
 }
 
 export interface RegisterRequest {
   username: string
+  email?: string
   password: string
 }
 
