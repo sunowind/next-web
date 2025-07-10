@@ -24,7 +24,7 @@ model User {
 model UserActivityLog {
   id           String   @id @default(cuid())
   userId       String
-  activityType String   // 'login', 'logout'
+  activityType String   // 'login', 'logout', 'password_change'
   createdAt    DateTime @default(now())
   
   @@map("user_activity_logs")
