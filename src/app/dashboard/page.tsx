@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getStoredAuth, clearAuth, AuthUser } from '@/lib/auth'
+import { getStoredAuth, AuthUser } from '@/lib/auth'
+import { LogoutButton } from '@/components/common/logout-button'
 
 export default function Dashboard() {
   const [user, setUser] = useState<AuthUser | null>(null)
@@ -14,11 +15,6 @@ export default function Dashboard() {
     }
     setLoading(false)
   }, [])
-
-  const handleLogout = () => {
-    clearAuth()
-    window.location.href = '/login'
-  }
 
   if (loading) {
     return (
@@ -42,12 +38,7 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <h1 className="text-3xl font-bold text-gray-900">仪表盘</h1>
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
-            >
-              退出登录
-            </button>
+            <LogoutButton />
           </div>
         </div>
       </header>
