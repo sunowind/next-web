@@ -1,11 +1,6 @@
----
-description: Next.js project TypeScript/React code style guide
-globs:
-alwaysApply: false
----
 
 # Tech Stack
-- Expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, and Tailwind CSS.
+- Expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, Tailwind CSS, Prisma, and Supabase.
 
 # Code Style
 - All code must use TypeScript. Prefer interfaces over types. Avoid enums; use maps instead.
@@ -34,6 +29,8 @@ alwaysApply: false
 # State & Data
 - Use nuqs for URL search parameter state management.
 - Do not use 'use client' for data fetching or global state management.
+- Use Prisma for type-safe database access; keep Prisma schema modular and descriptive.
+- Use Supabase for authentication and backend services; keep Supabase keys secure and never expose secrets to the client.
 
 # General
 - Strictly follow Next.js documentation for data fetching, rendering, and routing.
