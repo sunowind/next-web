@@ -3,15 +3,47 @@ import '@testing-library/jest-dom'
 
 // Add fetch polyfill for Node.js environment
 import { TextEncoder, TextDecoder } from 'util'
-import fetch, { Request, Response } from 'node-fetch'
 
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder
 
-// Polyfill fetch for testing
-global.fetch = fetch
-global.Request = Request
-global.Response = Response
+// Mock fetch for testing (will be overridden in individual tests)
+global.fetch = jest.fn()
+
+// Mock Request and Response for Node.js environment
+global.Request = class MockRequest {
+  constructor(url, options = {}) {
+    this.url = url
+    this.method = options.method || 'GET'
+    this.headers = new Map(Object.entries(options.headers || {}))
+    this._body = options.body
+  }
+
+  async json() {
+    return JSON.parse(this._body)
+  }
+
+  async text() {
+    return this._body
+  }
+}
+
+global.Response = class MockResponse {
+  constructor(body, options = {}) {
+    this.body = body
+    this.status = options.status || 200
+    this.statusText = options.statusText || 'OK'
+    this.headers = new Map(Object.entries(options.headers || {}))
+  }
+
+  async json() {
+    return JSON.parse(this.body)
+  }
+
+  async text() {
+    return this.body
+  }
+}
 
 // Mock localStorage
 const localStorageMock = (() => {

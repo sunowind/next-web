@@ -1,6 +1,32 @@
 import { POST } from '../route'
-import { NextRequest } from 'next/server'
 import bcrypt from 'bcryptjs'
+
+// Mock Next.js server components
+jest.mock('next/server', () => ({
+  NextRequest: class MockNextRequest {
+    constructor(url, options = {}) {
+      this.url = url
+      this.method = options.method || 'GET'
+      this.headers = new Map(Object.entries(options.headers || {}))
+      this._body = options.body
+    }
+
+    async json() {
+      return JSON.parse(this._body)
+    }
+
+    async text() {
+      return this._body
+    }
+  },
+  NextResponse: {
+    json: (body, options = {}) => ({
+      json: async () => body,
+      status: options.status || 200,
+      statusText: options.statusText || 'OK',
+    }),
+  },
+}))
 
 // Mock dependencies
 jest.mock('@/lib/prisma', () => ({
@@ -40,6 +66,7 @@ describe('Login API', () => {
   })
 
   const createRequest = (body: any) => {
+    const { NextRequest } = require('next/server')
     return new NextRequest('http://localhost:3000/api/login', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -305,6 +332,7 @@ describe('Login API', () => {
     })
 
     it('should handle malformed JSON', async () => {
+      const { NextRequest } = require('next/server')
       const request = new NextRequest('http://localhost:3000/api/login', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
