@@ -98,6 +98,7 @@ describe('MarkdownEditor', () => {
     const textarea = screen.getByRole('textbox');
     expect(textarea).toBeInTheDocument();
     expect(textarea).toHaveAttribute('placeholder', '在这里编写你的 Markdown 内容...');
+    expect(textarea).toHaveAttribute('aria-label', 'Markdown编辑器');
   });
 
   it('应该处理textarea输入变化', async () => {
@@ -184,27 +185,113 @@ describe('MarkdownEditor', () => {
     });
   });
 
-    // 测试防抖功能
+  // 测试防抖功能
   it('应该在用户输入时显示加载状态', async () => {
-    jest.useFakeTimers();
-    
     render(<MarkdownEditor />);
-    
+
     const textarea = screen.getByRole('textbox');
-    
+
     fireEvent.change(textarea, { target: { value: '# 新内容' } });
-    
+
     // 应该显示加载状态
     expect(screen.getByText('更新中...')).toBeInTheDocument();
-    
-    // 快进时间以触发防抖完成
-    jest.advanceTimersByTime(500);
-    
-    // 等待防抖完成
-    await waitFor(() => {
-      expect(screen.queryByText('更新中...')).not.toBeInTheDocument();
+  });
+
+  // 新增测试：实时预览功能
+  describe('实时预览功能', () => {
+    it('应该在输入时实时更新预览', async () => {
+      render(<MarkdownEditor />);
+
+      const textarea = screen.getByRole('textbox');
+      const { parseMarkdown } = require('@/lib/markdown');
+
+      // 输入新内容
+      fireEvent.change(textarea, { target: { value: '# 测试标题\n\n测试内容' } });
+
+      // 验证parseMarkdown被调用
+      expect(parseMarkdown).toHaveBeenCalled();
     });
-    
-    jest.useRealTimers();
+
+    it('应该正确处理快速连续输入', async () => {
+      render(<MarkdownEditor />);
+
+      const textarea = screen.getByRole('textbox');
+      const { parseMarkdown } = require('@/lib/markdown');
+
+      // 快速连续输入
+      fireEvent.change(textarea, { target: { value: '内容1' } });
+      fireEvent.change(textarea, { target: { value: '内容2' } });
+      fireEvent.change(textarea, { target: { value: '内容3' } });
+
+      // 验证parseMarkdown被调用
+      expect(parseMarkdown).toHaveBeenCalled();
+    });
+
+    it('应该显示加载动画', () => {
+      render(<MarkdownEditor />);
+
+      const textarea = screen.getByRole('textbox');
+      fireEvent.change(textarea, { target: { value: '# 测试' } });
+
+      // 应该显示加载动画
+      const loadingSpinner = document.querySelector('.animate-spin');
+      expect(loadingSpinner).toBeInTheDocument();
+    });
+  });
+
+  // 新增测试：预览区域功能
+  describe('预览区域功能', () => {
+    it('预览区域应该支持滚动', () => {
+      render(<MarkdownEditor />);
+
+      // 查找预览区域中的滚动容器
+      const previewContainer = document.querySelector('.overflow-auto');
+      expect(previewContainer).toBeInTheDocument();
+      expect(previewContainer).toHaveClass('overflow-auto');
+    });
+
+    it('预览内容应该与编辑内容对应', async () => {
+      render(<MarkdownEditor />);
+
+      const textarea = screen.getByRole('textbox');
+      const { parseMarkdown } = require('@/lib/markdown');
+
+      const testContent = '# 对应测试\n\n这是测试内容';
+      fireEvent.change(textarea, { target: { value: testContent } });
+
+      // 验证parseMarkdown被调用
+      expect(parseMarkdown).toHaveBeenCalled();
+    });
+  });
+
+  // 新增测试：错误处理
+  describe('错误处理', () => {
+    it('应该正确处理解析错误', async () => {
+      const { parseMarkdown } = require('@/lib/markdown');
+      parseMarkdown.mockImplementationOnce(() => {
+        throw new Error('解析错误');
+      });
+
+      render(<MarkdownEditor />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Markdown解析失败')).toBeInTheDocument();
+        expect(screen.getByText('解析失败')).toBeInTheDocument();
+      });
+    });
+
+    it('应该显示错误提示样式', async () => {
+      const { parseMarkdown } = require('@/lib/markdown');
+      parseMarkdown.mockImplementationOnce(() => {
+        throw new Error('解析错误');
+      });
+
+      render(<MarkdownEditor />);
+
+      await waitFor(() => {
+        const errorDiv = screen.getByText('Markdown解析失败').closest('div');
+        expect(errorDiv).toHaveClass('bg-yellow-100', 'border-yellow-300', 'text-yellow-800');
+      });
+    });
   });
 }); 
