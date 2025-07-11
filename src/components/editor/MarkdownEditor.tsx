@@ -1,10 +1,8 @@
 'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
-import { htmlToMarkdown, isMarkdownSafe, parseMarkdown, sanitizeMarkdown } from '@/lib/markdown';
-import { tiptapEditorProps } from '@/lib/tiptap-config';
-import { EditorContent, useEditor } from '@tiptap/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { isMarkdownSafe, parseMarkdown, sanitizeMarkdown } from '@/lib/markdown';
+import { useCallback, useMemo, useState } from 'react';
 
 export function MarkdownEditor() {
   const [markdown, setMarkdown] = useState('# 欢迎使用 Markdown 编辑器\n\n在这里编写你的 Markdown 内容...');
@@ -27,17 +25,12 @@ export function MarkdownEditor() {
     }, 500);
   }, [lastUpdateTime]);
 
-  // TipTap editor instance
-  const editor = useEditor({
-    ...tiptapEditorProps,
-    content: markdown,
-    onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
-      const markdownContent = htmlToMarkdown(html);
-      setMarkdown(markdownContent);
-      debounceUpdate(markdownContent);
-    },
-  });
+  // 处理textarea输入变化
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newMarkdown = e.target.value;
+    setMarkdown(newMarkdown);
+    debounceUpdate(newMarkdown);
+  };
 
   // 安全检查和清理
   const safeMarkdown = useMemo(() => {
@@ -60,17 +53,6 @@ export function MarkdownEditor() {
     }
   }, [safeMarkdown]);
 
-  // 更新编辑器内容
-  useEffect(() => {
-    if (editor && !editor.isDestroyed) {
-      const currentHtml = editor.getHTML();
-      const currentMarkdown = htmlToMarkdown(currentHtml);
-      if (currentMarkdown !== markdown) {
-        editor.commands.setContent(markdown);
-      }
-    }
-  }, [editor, markdown]);
-
   return (
     <div className="grid grid-cols-2 gap-6 h-[calc(100vh-200px)]">
       {/* 编辑区域 */}
@@ -78,7 +60,12 @@ export function MarkdownEditor() {
         <CardContent className="p-4 h-full flex flex-col">
           <h2 className="text-lg font-semibold mb-3">编辑区域</h2>
           <div className="flex-1 border rounded-md overflow-hidden">
-            {editor && <EditorContent editor={editor} />}
+            <textarea
+              value={markdown}
+              onChange={handleTextareaChange}
+              className="w-full h-full p-4 resize-none focus:outline-none font-mono text-sm"
+              placeholder="在这里编写你的 Markdown 内容..."
+            />
           </div>
         </CardContent>
       </Card>

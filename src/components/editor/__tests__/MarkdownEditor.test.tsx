@@ -1,49 +1,9 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import React from 'react';
 import { MarkdownEditor } from '../MarkdownEditor';
 
-// Mock TipTap
-jest.mock('@tiptap/react', () => ({
-  useEditor: jest.fn(() => ({
-    getHTML: jest.fn(() => '<h1>欢迎使用 Markdown 编辑器</h1><p>在这里编写你的 Markdown 内容...</p>'),
-    onUpdate: jest.fn(),
-    commands: {
-      setContent: jest.fn(),
-    },
-    isDestroyed: false,
-  })),
-  EditorContent: ({ editor }: { editor: any }) => (
-    <div data-testid="tiptap-editor" contentEditable>
-      <h1>欢迎使用 Markdown 编辑器</h1>
-      <p>在这里编写你的 Markdown 内容...</p>
-    </div>
-  ),
-}));
-
 // Mock markdown工具函数
 jest.mock('@/lib/markdown', () => ({
-  htmlToMarkdown: jest.fn((html: string) => {
-    return html
-      .replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n')
-      .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n')
-      .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n')
-      .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**')
-      .replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*')
-      .replace(/<code[^>]*>(.*?)<\/code>/gi, '`$1`')
-      .replace(/<pre[^>]*><code[^>]*>(.*?)<\/code><\/pre>/gi, '```\n$1\n```')
-      .replace(/<blockquote[^>]*>(.*?)<\/blockquote>/gi, '> $1\n')
-      .replace(/<ul[^>]*>(.*?)<\/ul>/gi, (match: string, content: string) => {
-        return content.replace(/<li[^>]*>(.*?)<\/li>/gi, '- $1\n');
-      })
-      .replace(/<ol[^>]*>(.*?)<\/ol>/gi, (match: string, content: string) => {
-        let counter = 1;
-        return content.replace(/<li[^>]*>(.*?)<\/li>/gi, () => `${counter++}. $1\n`);
-      })
-      .replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)')
-      .replace(/<p[^>]*>(.*?)<\/p>/gi, '$1\n\n')
-      .replace(/<[^>]*>/g, '')
-      .trim();
-  }),
   parseMarkdown: jest.fn((markdown: string) => {
     // 返回React元素而不是HTMLDivElement
     return React.createElement('div', {
@@ -77,13 +37,13 @@ describe('MarkdownEditor', () => {
 
     expect(screen.getByText('编辑区域')).toBeInTheDocument();
     expect(screen.getByText('预览区域')).toBeInTheDocument();
-    expect(screen.getByTestId('tiptap-editor')).toBeInTheDocument();
+    expect(screen.getByRole('textbox')).toBeInTheDocument();
   });
 
   it('应该显示初始的Markdown内容', () => {
     render(<MarkdownEditor />);
-    const editor = screen.getByTestId('tiptap-editor');
-    expect(within(editor).getByText('欢迎使用 Markdown 编辑器')).toBeInTheDocument();
+    const textarea = screen.getByRole('textbox');
+    expect(textarea).toHaveValue('# 欢迎使用 Markdown 编辑器\n\n在这里编写你的 Markdown 内容...');
   });
 
   it('应该使用固定的左右布局', () => {
@@ -132,27 +92,39 @@ describe('MarkdownEditor', () => {
     }, { timeout: 1000 });
   });
 
-  it('应该显示TipTap编辑器', () => {
+  it('应该显示textarea编辑器', () => {
     render(<MarkdownEditor />);
 
-    expect(screen.getByTestId('tiptap-editor')).toBeInTheDocument();
-    expect(screen.getByTestId('tiptap-editor')).toHaveAttribute('contenteditable');
+    const textarea = screen.getByRole('textbox');
+    expect(textarea).toBeInTheDocument();
+    expect(textarea).toHaveAttribute('placeholder', '在这里编写你的 Markdown 内容...');
   });
 
-  it('应该使用htmlToMarkdown函数进行转换', () => {
-    const { htmlToMarkdown } = require('@/lib/markdown');
+  it('应该处理textarea输入变化', async () => {
     render(<MarkdownEditor />);
 
-    expect(htmlToMarkdown).toHaveBeenCalled();
+    const textarea = screen.getByRole('textbox');
+    const newContent = '# 新标题\n\n新内容';
+
+    fireEvent.change(textarea, { target: { value: newContent } });
+
+    expect(textarea).toHaveValue(newContent);
   });
 
-  it('应该正确处理HTML到Markdown的转换', () => {
-    const { htmlToMarkdown } = require('@/lib/markdown');
-    htmlToMarkdown.mockReturnValueOnce('# 转换后的标题\n\n转换后的内容');
+  it('应该使用parseMarkdown函数进行渲染', () => {
+    const { parseMarkdown } = require('@/lib/markdown');
+    render(<MarkdownEditor />);
+
+    expect(parseMarkdown).toHaveBeenCalled();
+  });
+
+  it('应该正确处理Markdown内容解析', () => {
+    const { parseMarkdown } = require('@/lib/markdown');
+    parseMarkdown.mockReturnValueOnce(React.createElement('div', { dangerouslySetInnerHTML: { __html: '<h1>测试标题</h1>' } }));
 
     render(<MarkdownEditor />);
 
-    expect(htmlToMarkdown).toHaveBeenCalledWith('<h1>欢迎使用 Markdown 编辑器</h1><p>在这里编写你的 Markdown 内容...</p>');
+    expect(parseMarkdown).toHaveBeenCalledWith(expect.stringContaining('欢迎使用 Markdown 编辑器'));
   });
 
   // 新增测试：验证所有基础Markdown语法支持
@@ -167,61 +139,72 @@ describe('MarkdownEditor', () => {
     });
 
     it('应该支持列表语法', () => {
-      const { htmlToMarkdown } = require('@/lib/markdown');
-      const testHtml = '<ul><li>无序列表项</li></ul><ol><li>有序列表项</li></ol>';
-
-      htmlToMarkdown.mockReturnValueOnce('- 无序列表项\n1. 有序列表项');
+      const { parseMarkdown } = require('@/lib/markdown');
+      const testMarkdown = '- 无序列表项\n1. 有序列表项';
 
       render(<MarkdownEditor />);
 
-      expect(htmlToMarkdown).toHaveBeenCalled();
+      expect(parseMarkdown).toHaveBeenCalled();
     });
 
     it('应该支持文本格式语法', () => {
-      const { htmlToMarkdown } = require('@/lib/markdown');
-      const testHtml = '<strong>粗体</strong><em>斜体</em><code>代码</code>';
-
-      htmlToMarkdown.mockReturnValueOnce('**粗体** *斜体* `代码`');
+      const { parseMarkdown } = require('@/lib/markdown');
+      const testMarkdown = '**粗体** *斜体* `代码`';
 
       render(<MarkdownEditor />);
 
-      expect(htmlToMarkdown).toHaveBeenCalled();
+      expect(parseMarkdown).toHaveBeenCalled();
     });
 
     it('应该支持链接语法', () => {
-      const { htmlToMarkdown } = require('@/lib/markdown');
-      const testHtml = '<a href="https://example.com">链接文本</a>';
-
-      htmlToMarkdown.mockReturnValueOnce('[链接文本](https://example.com)');
+      const { parseMarkdown } = require('@/lib/markdown');
+      const testMarkdown = '[链接文本](https://example.com)';
 
       render(<MarkdownEditor />);
 
-      expect(htmlToMarkdown).toHaveBeenCalled();
+      expect(parseMarkdown).toHaveBeenCalled();
     });
 
     it('应该支持代码块语法', () => {
-      const { htmlToMarkdown } = require('@/lib/markdown');
-      const testHtml = '<pre><code>代码块内容</code></pre>';
-
-      htmlToMarkdown.mockReturnValueOnce('```\n代码块内容\n```');
+      const { parseMarkdown } = require('@/lib/markdown');
+      const testMarkdown = '```\n代码块内容\n```';
 
       render(<MarkdownEditor />);
 
-      expect(htmlToMarkdown).toHaveBeenCalled();
+      expect(parseMarkdown).toHaveBeenCalled();
     });
 
     it('应该支持引用语法', () => {
-      const { htmlToMarkdown } = require('@/lib/markdown');
-      const testHtml = '<blockquote>引用内容</blockquote>';
-
-      htmlToMarkdown.mockReturnValueOnce('> 引用内容');
+      const { parseMarkdown } = require('@/lib/markdown');
+      const testMarkdown = '> 引用内容';
 
       render(<MarkdownEditor />);
 
-      expect(htmlToMarkdown).toHaveBeenCalled();
+      expect(parseMarkdown).toHaveBeenCalled();
     });
   });
 
-  // 测试防抖功能 - 移除这个测试，因为它依赖于复杂的异步行为
-  // 在实际应用中，防抖功能会在用户输入时触发，但在测试环境中难以模拟
+    // 测试防抖功能
+  it('应该在用户输入时显示加载状态', async () => {
+    jest.useFakeTimers();
+    
+    render(<MarkdownEditor />);
+    
+    const textarea = screen.getByRole('textbox');
+    
+    fireEvent.change(textarea, { target: { value: '# 新内容' } });
+    
+    // 应该显示加载状态
+    expect(screen.getByText('更新中...')).toBeInTheDocument();
+    
+    // 快进时间以触发防抖完成
+    jest.advanceTimersByTime(500);
+    
+    // 等待防抖完成
+    await waitFor(() => {
+      expect(screen.queryByText('更新中...')).not.toBeInTheDocument();
+    });
+    
+    jest.useRealTimers();
+  });
 }); 
