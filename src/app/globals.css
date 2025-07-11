@@ -119,3 +119,94 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* React MD Editor 样式定制 */
+@layer components {
+  .w-md-editor {
+    @apply bg-card border-border rounded-lg;
+  }
+
+  .w-md-editor-text-textarea,
+  .w-md-editor-text-input,
+  .w-md-editor-text {
+    @apply bg-background text-foreground border-border;
+    font-family:
+      ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono',
+      Menlo, monospace !important;
+  }
+
+  .w-md-editor-preview {
+    @apply bg-background text-foreground;
+  }
+
+  .w-md-editor-toolbar {
+    @apply bg-muted border-border;
+  }
+
+  .w-md-editor-toolbar-divider {
+    @apply bg-border;
+  }
+
+  .w-md-editor-toolbar ul > li button {
+    @apply text-foreground hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .w-md-editor-toolbar ul > li button:hover {
+    @apply bg-accent text-accent-foreground;
+  }
+
+  .w-md-editor-toolbar ul > li button.active {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  .w-md-editor-focus {
+    @apply border-ring;
+  }
+
+  /* 预览区域样式 */
+  .w-md-editor-preview .wmde-markdown {
+    @apply text-foreground;
+  }
+
+  .w-md-editor-preview .wmde-markdown h1,
+  .w-md-editor-preview .wmde-markdown h2,
+  .w-md-editor-preview .wmde-markdown h3,
+  .w-md-editor-preview .wmde-markdown h4,
+  .w-md-editor-preview .wmde-markdown h5,
+  .w-md-editor-preview .wmde-markdown h6 {
+    @apply text-foreground;
+  }
+
+  .w-md-editor-preview .wmde-markdown code {
+    @apply bg-muted text-foreground px-1 py-0.5 rounded;
+  }
+
+  .w-md-editor-preview .wmde-markdown pre {
+    @apply bg-muted border border-border rounded-md;
+  }
+
+  .w-md-editor-preview .wmde-markdown pre code {
+    @apply bg-transparent px-0 py-0;
+  }
+
+  .w-md-editor-preview .wmde-markdown blockquote {
+    @apply border-l-4 border-border pl-4 text-muted-foreground;
+  }
+
+  .w-md-editor-preview .wmde-markdown a {
+    @apply text-primary hover:underline;
+  }
+
+  .w-md-editor-preview .wmde-markdown table {
+    @apply border-border;
+  }
+
+  .w-md-editor-preview .wmde-markdown th,
+  .w-md-editor-preview .wmde-markdown td {
+    @apply border-border;
+  }
+
+  .w-md-editor-preview .wmde-markdown th {
+    @apply bg-muted;
+  }
+}

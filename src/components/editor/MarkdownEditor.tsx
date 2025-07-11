@@ -1,115 +1,72 @@
 'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
-import { isMarkdownSafe, parseMarkdown, sanitizeMarkdown } from '@/lib/markdown';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { isMarkdownSafe, sanitizeMarkdown } from '@/lib/markdown';
+import dynamic from 'next/dynamic';
+import { useCallback, useState } from 'react';
+
+// 动态导入react-md-editor以解决SSR问题
+const MDEditor = dynamic(
+  () => import('@uiw/react-md-editor').then((mod) => mod.default),
+  { ssr: false }
+);
 
 export function MarkdownEditor() {
-  const [markdown, setMarkdown] = useState('# 欢迎使用 Markdown 编辑器\n\n在这里编写你的 Markdown 内容...');
-  const [debouncedMarkdown, setDebouncedMarkdown] = useState(markdown);
-  const [isLoading, setIsLoading] = useState(false);
+  const [markdown, setMarkdown] = useState('# 欢迎使用 Markdown 编辑器\n\n在这里编写你的 Markdown 内容...\n\n## 功能特性\n\n- ✅ 实时预览\n- ✅ 工具栏快捷操作\n- ✅ 语法高亮\n- ✅ 全屏编辑\n- ✅ 安全内容过滤\n\n## 支持的语法\n\n### 文本格式\n\n**粗体文本** 和 *斜体文本*\n\n### 代码\n\n行内代码：`const hello = "world"`\n\n代码块：\n```javascript\nfunction greet(name) {\n  return `Hello, ${name}!`;\n}\n```\n\n### 列表\n\n- 无序列表项 1\n- 无序列表项 2\n  - 嵌套列表项\n\n1. 有序列表项 1\n2. 有序列表项 2\n\n### 链接和引用\n\n[链接示例](https://example.com)\n\n> 这是一个引用块\n> 可以包含多行内容\n\n### 表格\n\n| 功能 | 状态 | 说明 |\n|------|------|------|\n| 编辑 | ✅ | 支持 |\n| 预览 | ✅ | 实时 |\n| 工具栏 | ✅ | 完整 |');
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdateTime, setLastUpdateTime] = useState(0);
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 优化的防抖处理函数
-  const debounceUpdate = useCallback((newMarkdown: string) => {
-    const now = Date.now();
-    setLastUpdateTime(now);
-    setIsLoading(true);
+  // 处理markdown内容变化
+  const handleMarkdownChange = useCallback((value?: string) => {
+    const newMarkdown = value || '';
 
-    // 清除之前的定时器
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
+    // 安全检查
+    if (!isMarkdownSafe(newMarkdown)) {
+      setError('检测到潜在的危险内容，已自动清理');
+      const sanitized = sanitizeMarkdown(newMarkdown);
+      setMarkdown(sanitized);
+    } else {
+      setError(null);
+      setMarkdown(newMarkdown);
     }
-
-    // 设置新的定时器
-    debounceTimeoutRef.current = setTimeout(() => {
-      if (now === lastUpdateTime) {
-        setDebouncedMarkdown(newMarkdown);
-        setIsLoading(false);
-      }
-    }, 500);
-  }, [lastUpdateTime]);
-
-  // 清理定时器
-  useEffect(() => {
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-    };
   }, []);
 
-  // 处理textarea输入变化
-  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newMarkdown = e.target.value;
-    setMarkdown(newMarkdown);
-    debounceUpdate(newMarkdown);
-  };
-
-  // 安全检查和清理
-  const safeMarkdown = useMemo(() => {
-    if (!isMarkdownSafe(debouncedMarkdown)) {
-      setError('检测到潜在的危险内容，已自动清理');
-      return sanitizeMarkdown(debouncedMarkdown);
-    }
-    setError(null);
-    return debouncedMarkdown;
-  }, [debouncedMarkdown]);
-
-  // 解析Markdown，使用useMemo缓存结果
-  const parsedContent = useMemo(() => {
-    try {
-      const result = parseMarkdown(safeMarkdown);
-      return result;
-    } catch (err) {
-      setError('Markdown解析失败');
-      return <div className="text-red-500">解析失败</div>;
-    }
-  }, [safeMarkdown]);
-
   return (
-    <div className="grid grid-cols-2 gap-6 h-[calc(100vh-200px)]">
-      {/* 编辑区域 */}
+    <div className="w-full h-[calc(100vh-200px)]">
       <Card className="h-full">
         <CardContent className="p-4 h-full flex flex-col">
-          <h2 className="text-lg font-semibold mb-3">编辑区域</h2>
-          <div className="flex-1 border rounded-md overflow-hidden">
-            <textarea
-              value={markdown}
-              onChange={handleTextareaChange}
-              className="w-full h-full p-4 resize-none focus:outline-none font-mono text-sm"
-              placeholder="在这里编写你的 Markdown 内容..."
-              aria-label="Markdown编辑器"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 预览区域 */}
-      <Card className="h-full">
-        <CardContent className="p-4 h-full flex flex-col">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold">预览区域</h2>
-            {isLoading && (
-              <div className="flex items-center text-sm text-gray-500">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500 mr-2"></div>
-                更新中...
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Markdown 编辑器</h2>
+            {error && (
+              <div className="px-3 py-1 bg-yellow-100 border border-yellow-300 rounded text-sm text-yellow-800">
+                {error}
               </div>
             )}
           </div>
 
-          {error && (
-            <div className="mb-3 p-2 bg-yellow-100 border border-yellow-300 rounded text-sm text-yellow-800">
-              {error}
-            </div>
-          )}
-
-          <div className="flex-1 overflow-auto border rounded-md p-4 bg-white">
-            <div className="prose prose-sm max-w-none">
-              {parsedContent}
-            </div>
+          <div className="flex-1 overflow-hidden">
+            <MDEditor
+              value={markdown}
+              onChange={handleMarkdownChange}
+              height={600}
+              data-color-mode="light"
+              visibleDragBar={false}
+              textareaProps={{
+                placeholder: '在这里编写你的 Markdown 内容...',
+                'aria-label': 'Markdown编辑器',
+                style: {
+                  fontSize: 14,
+                  lineHeight: 1.5,
+                  fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
+                }
+              }}
+              preview="edit"
+              hideToolbar={false}
+              toolbarHeight={40}
+              previewOptions={{
+                rehypePlugins: [],
+                remarkPlugins: [],
+              }}
+            />
           </div>
         </CardContent>
       </Card>
