@@ -1,42 +1,29 @@
 'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
-import { isMarkdownSafe, parseMarkdown, sanitizeMarkdown } from '@/lib/markdown';
+import { htmlToMarkdown, isMarkdownSafe, parseMarkdown, sanitizeMarkdown } from '@/lib/markdown';
 import { tiptapEditorProps } from '@/lib/tiptap-config';
 import { EditorContent, useEditor } from '@tiptap/react';
-import { useEffect, useMemo, useState } from 'react';
-
-// 简单的HTML到Markdown转换函数
-function htmlToMarkdown(html: string): string {
-  return html
-    .replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n')
-    .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n')
-    .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n')
-    .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**')
-    .replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*')
-    .replace(/<code[^>]*>(.*?)<\/code>/gi, '`$1`')
-    .replace(/<pre[^>]*><code[^>]*>(.*?)<\/code><\/pre>/gis, '```\n$1\n```')
-    .replace(/<blockquote[^>]*>(.*?)<\/blockquote>/gi, '> $1')
-    .replace(/<ul[^>]*>(.*?)<\/ul>/gis, (match, content) => {
-      return content.replace(/<li[^>]*>(.*?)<\/li>/gi, '- $1\n');
-    })
-    .replace(/<ol[^>]*>(.*?)<\/ol>/gis, (match, content) => {
-      return content.replace(/<li[^>]*>(.*?)<\/li>/gi, '1. $1\n');
-    })
-    .replace(/<p[^>]*>(.*?)<\/p>/gi, '$1\n')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<[^>]*>/g, '')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&')
-    .trim();
-}
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export function MarkdownEditor() {
   const [markdown, setMarkdown] = useState('# 欢迎使用 Markdown 编辑器\n\n在这里编写你的 Markdown 内容...');
   const [debouncedMarkdown, setDebouncedMarkdown] = useState(markdown);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdateTime, setLastUpdateTime] = useState(0);
+
+  // 防抖处理函数
+  const debounceUpdate = useCallback((newMarkdown: string) => {
+    const now = Date.now();
+    setLastUpdateTime(now);
+
+    setTimeout(() => {
+      if (now === lastUpdateTime) {
+        setDebouncedMarkdown(newMarkdown);
+      }
+    }, 500);
+  }, [lastUpdateTime]);
 
   // TipTap editor instance
   const editor = useEditor({
@@ -46,17 +33,9 @@ export function MarkdownEditor() {
       const html = editor.getHTML();
       const markdownContent = htmlToMarkdown(html);
       setMarkdown(markdownContent);
+      debounceUpdate(markdownContent);
     },
   });
-
-  // 防抖处理，500ms延迟
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedMarkdown(markdown);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [markdown]);
 
   // 安全检查和清理
   const safeMarkdown = useMemo(() => {

@@ -49,4 +49,8 @@ export const tiptapEditorProps = {
       class: 'prose prose-sm max-w-none focus:outline-none min-h-[200px] p-4',
     },
   },
+  // 添加实时更新配置
+  onUpdate: ({ editor }: { editor: any }) => {
+    // 这个回调会在组件中处理
+  },
 }

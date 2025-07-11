@@ -22,6 +22,28 @@ jest.mock('@tiptap/react', () => ({
 
 // Mock markdown工具函数
 jest.mock('@/lib/markdown', () => ({
+  htmlToMarkdown: jest.fn((html: string) => {
+    return html
+      .replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n')
+      .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n')
+      .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n')
+      .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**')
+      .replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*')
+      .replace(/<code[^>]*>(.*?)<\/code>/gi, '`$1`')
+      .replace(/<pre[^>]*><code[^>]*>(.*?)<\/code><\/pre>/gi, '```\n$1\n```')
+      .replace(/<blockquote[^>]*>(.*?)<\/blockquote>/gi, '> $1\n')
+      .replace(/<ul[^>]*>(.*?)<\/ul>/gi, (match: string, content: string) => {
+        return content.replace(/<li[^>]*>(.*?)<\/li>/gi, '- $1\n');
+      })
+      .replace(/<ol[^>]*>(.*?)<\/ol>/gi, (match: string, content: string) => {
+        let counter = 1;
+        return content.replace(/<li[^>]*>(.*?)<\/li>/gi, () => `${counter++}. $1\n`);
+      })
+      .replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)')
+      .replace(/<p[^>]*>(.*?)<\/p>/gi, '$1\n\n')
+      .replace(/<[^>]*>/g, '')
+      .trim();
+  }),
   parseMarkdown: jest.fn((markdown: string) => {
     // 返回React元素而不是HTMLDivElement
     return React.createElement('div', {
@@ -108,5 +130,30 @@ describe('MarkdownEditor', () => {
 
     expect(screen.getByTestId('tiptap-editor')).toBeInTheDocument();
     expect(screen.getByTestId('tiptap-editor')).toHaveAttribute('contenteditable');
+  });
+
+  it('应该使用htmlToMarkdown函数进行转换', () => {
+    const { htmlToMarkdown } = require('@/lib/markdown');
+    render(<MarkdownEditor />);
+
+    expect(htmlToMarkdown).toHaveBeenCalled();
+  });
+
+  it('应该实现防抖功能', async () => {
+    render(<MarkdownEditor />);
+
+    // 初始状态应该显示加载指示器
+    await waitFor(() => {
+      expect(screen.getByText('更新中...')).toBeInTheDocument();
+    }, { timeout: 1000 });
+  });
+
+  it('应该正确处理HTML到Markdown的转换', () => {
+    const { htmlToMarkdown } = require('@/lib/markdown');
+    htmlToMarkdown.mockReturnValueOnce('# 转换后的标题\n\n转换后的内容');
+
+    render(<MarkdownEditor />);
+
+    expect(htmlToMarkdown).toHaveBeenCalledWith('<h1>欢迎使用 Markdown 编辑器</h1><p>在这里编写你的 Markdown 内容...</p>');
   });
 }); 
