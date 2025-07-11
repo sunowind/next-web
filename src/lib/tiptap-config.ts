@@ -33,13 +33,34 @@ export const tiptapExtensions = [
     HTMLAttributes: {
       target: '_blank',
       rel: 'noopener noreferrer',
+      class: 'text-blue-600 hover:text-blue-800 underline',
     },
   }),
-  Bold,
-  Italic,
-  Code,
-  CodeBlock,
-  Blockquote,
+  Bold.configure({
+    HTMLAttributes: {
+      class: 'font-bold',
+    },
+  }),
+  Italic.configure({
+    HTMLAttributes: {
+      class: 'italic',
+    },
+  }),
+  Code.configure({
+    HTMLAttributes: {
+      class: 'bg-gray-100 px-1 py-0.5 rounded text-sm font-mono',
+    },
+  }),
+  CodeBlock.configure({
+    HTMLAttributes: {
+      class: 'bg-gray-100 p-3 rounded mb-3 overflow-x-auto font-mono text-sm',
+    },
+  }),
+  Blockquote.configure({
+    HTMLAttributes: {
+      class: 'border-l-4 border-gray-300 pl-4 mb-3 italic',
+    },
+  }),
 ]
 
 export const tiptapEditorProps = {

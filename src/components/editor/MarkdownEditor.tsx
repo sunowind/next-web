@@ -17,10 +17,12 @@ export function MarkdownEditor() {
   const debounceUpdate = useCallback((newMarkdown: string) => {
     const now = Date.now();
     setLastUpdateTime(now);
+    setIsLoading(true); // 开始加载
 
     setTimeout(() => {
       if (now === lastUpdateTime) {
         setDebouncedMarkdown(newMarkdown);
+        setIsLoading(false); // 结束加载
       }
     }, 500);
   }, [lastUpdateTime]);
@@ -49,13 +51,10 @@ export function MarkdownEditor() {
 
   // 解析Markdown，使用useMemo缓存结果
   const parsedContent = useMemo(() => {
-    setIsLoading(true);
     try {
       const result = parseMarkdown(safeMarkdown);
-      setIsLoading(false);
       return result;
     } catch (err) {
-      setIsLoading(false);
       setError('Markdown解析失败');
       return <div className="text-red-500">解析失败</div>;
     }
