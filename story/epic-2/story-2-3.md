@@ -7,15 +7,15 @@
 ## 验收标准
 
 - [ ] 支持标题语法（# ## ###）
-- [ ] 支持无序列表语法（- * +）
+- [ ] 支持无序列表语法（- \* +）
 - [ ] 支持有序列表语法（1. 2. 3.）
 - [ ] 支持链接语法（[text](url)）
 - [ ] 支持粗体语法（**bold**）
-- [ ] 支持斜体语法（*italic*）
-- [ ] 支持代码块语法（``` ```）
+- [ ] 支持斜体语法（_italic_）
+- [ ] 支持代码块语法（` `）
 - [ ] 支持行内代码语法（`code`）
 - [ ] 支持引用语法（> quote）
-- [ ] TipTap编辑器能够识别并渲染所有基础Markdown语法
+- [ ] react-markdown能够识别并渲染所有基础Markdown语法
 
 ## 业务价值
 
@@ -27,21 +27,21 @@
 
 ## 技术实现建议（Tech Lead）
 
-- 前端：使用TipTap编辑器 + 相关Markdown扩展
-- 编辑器：配置TipTap的各种扩展支持Markdown语法
+- 前端：使用textarea + react-markdown
+- 编辑器：使用textarea输入，react-markdown渲染
 - 后端：无需后端，纯前端实现
-- 安全：使用TipTap内置的安全特性
+- 安全：使用react-markdown内置的安全特性
 
 ## 技术难点
 
 - 确保所有基本语法正确解析和渲染
 - 处理特殊字符和转义
 - 样式的一致性和美观性
-- TipTap扩展的配置和集成
+- react-markdown的配置和样式
 
 ## 测试建议
 
-- 单元测试：各种Markdown语法在TipTap中的渲染测试
+- 单元测试：各种Markdown语法在react-markdown中的渲染测试
 - 集成测试：完整文档渲染测试
 
 ---
@@ -50,28 +50,22 @@
 
 ### 前端实现步骤
 
-1. **配置TipTap扩展**
-   - 安装并配置TipTap核心扩展：
-     - `@tiptap/extension-heading` (标题)
-     - `@tiptap/extension-list-item` (列表项)
-     - `@tiptap/extension-bullet-list` (无序列表)
-     - `@tiptap/extension-ordered-list` (有序列表)
-     - `@tiptap/extension-link` (链接)
-     - `@tiptap/extension-bold` (粗体)
-     - `@tiptap/extension-italic` (斜体)
-     - `@tiptap/extension-code` (行内代码)
-     - `@tiptap/extension-code-block` (代码块)
-     - `@tiptap/extension-blockquote` (引用)
+1. **配置react-markdown**
+   - 安装并配置react-markdown：
+     - 支持标题渲染（h1-h6）
+     - 支持列表渲染（ul, ol, li）
+     - 支持文本格式（strong, em, code）
+     - 支持链接渲染（a标签）
+     - 支持代码块和引用渲染
 
 2. **实现基本语法支持**
-   - 配置标题扩展（支持h1-h6）
-   - 配置列表扩展（支持ul, ol, li）
-   - 配置文本格式扩展（strong, em, code）
-   - 配置链接扩展（a标签）
-   - 配置代码块和引用扩展
+   - 配置react-markdown支持所有基础语法
+   - 添加自定义样式组件
+   - 处理特殊字符和转义
+   - 确保渲染安全性
 
 3. **样式设计**
-   - 创建 `styles/tiptap-markdown.css` 样式文件
+   - 创建 `styles/markdown.css` 样式文件
    - 设计标题层级样式
    - 设计列表样式
    - 设计代码块样式
@@ -82,7 +76,7 @@
    - 测试所有支持的语法
    - 处理边界情况
    - 添加错误处理
-   - 验证Markdown导入导出功能
+   - 验证渲染效果
 
 ### 后端实现步骤
 
@@ -101,7 +95,7 @@
    - 测试各种语法的视觉效果
    - 测试样式的一致性
    - 测试布局的稳定性
-   - 测试TipTap编辑器的交互性
+   - 测试textarea的交互性
 
 ---
 
@@ -109,14 +103,14 @@
 
 - 前端文件：
   - `components/editor/MarkdownEditor.tsx`
-  - `lib/tiptap-config.ts`
-  - `styles/tiptap-markdown.css`
+  - `lib/markdown.ts`
+  - `styles/markdown.css`
 
 ## 注意事项
 
 - 确保所有基本语法都能正确解析
 - 注意样式的层次性和一致性
-- 利用TipTap的丰富扩展生态系统
+- 利用react-markdown的轻量级特性
 - 处理特殊字符的转义
-- 确保链接的安全性（TipTap内置安全特性）
-- 考虑添加键盘快捷键支持 
+- 确保链接的安全性（react-markdown内置安全特性）
+- 考虑添加键盘快捷键支持
