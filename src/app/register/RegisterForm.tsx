@@ -1,8 +1,13 @@
 'use client'
 
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useRouter } from 'next/navigation'
 
 interface RegisterFormData {
   username: string
@@ -69,153 +74,133 @@ export function RegisterForm() {
   }
 
   return (
-    <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
-        用户注册
-      </h2>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* 用户名字段 */}
-        <div>
-          <label
-            htmlFor="username"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            用户名 <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="username"
-            type="text"
-            {...register('username', {
-              required: '用户名不能为空',
-              minLength: { value: 3, message: '用户名至少需要3个字符' },
-              maxLength: { value: 20, message: '用户名不能超过20个字符' },
-            })}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.username ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="请输入用户名"
-            aria-describedby={errors.username ? 'username-error' : undefined}
-          />
-          {errors.username && (
-            <p id="username-error" className="mt-1 text-sm text-red-500">
-              {errors.username.message}
-            </p>
-          )}
-        </div>
-
-        {/* 密码字段 */}
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            密码 <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="password"
-            type="password"
-            {...register('password', {
-              required: '密码不能为空',
-              minLength: { value: 6, message: '密码至少需要6个字符' },
-            })}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.password ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="请输入密码"
-            aria-describedby={errors.password ? 'password-error' : undefined}
-          />
-          {errors.password && (
-            <p id="password-error" className="mt-1 text-sm text-red-500">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
-
-        {/* 确认密码字段 */}
-        <div>
-          <label
-            htmlFor="confirmPassword"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            确认密码 <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="confirmPassword"
-            type="password"
-            {...register('confirmPassword', {
-              required: '请确认密码',
-              validate: (value) =>
-                value === watchPassword || '两次输入的密码不一致',
-            })}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="请再次输入密码"
-            aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
-          />
-          {errors.confirmPassword && (
-            <p id="confirm-password-error" className="mt-1 text-sm text-red-500">
-              {errors.confirmPassword.message}
-            </p>
-          )}
-        </div>
-
-        {/* 提交按钮 */}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
-            isSubmitting
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
-          } text-white`}
-          aria-describedby={submitMessage ? 'submit-message' : undefined}
-        >
-          {isSubmitting ? (
-            <span className="flex items-center justify-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              注册中...
-            </span>
-          ) : (
-            '注册'
-          )}
-        </button>
-
-        {/* 提交结果提示 */}
-        {submitMessage && (
-          <div
-            id="submit-message"
-            className={`p-3 rounded-md ${
-              submitMessage.type === 'success'
-                ? 'bg-green-50 text-green-700 border border-green-200'
-                : 'bg-red-50 text-red-700 border border-red-200'
-            }`}
-            role="alert"
-          >
-            {submitMessage.text}
-            {submitMessage.type === 'success' && (
-              <p className="text-sm mt-1">即将跳转到登录页面...</p>
+    <Card className="w-full max-w-md">
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl text-center">
+          用户注册
+        </CardTitle>
+        <CardDescription className="text-center">
+          请输入您的注册信息
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* 用户名字段 */}
+          <div className="space-y-2">
+            <Label htmlFor="username">
+              用户名 <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="username"
+              type="text"
+              placeholder="请输入用户名"
+              {...register('username', {
+                required: '用户名不能为空',
+                minLength: { value: 3, message: '用户名至少需3个字符' },
+                maxLength: { value: 20, message: '用户名不能超过20个字符' },
+              })}
+              className={errors.username ? 'border-red-500' : ''}
+              aria-describedby={errors.username ? 'username-error' : undefined}
+            />
+            {errors.username && (
+              <p id="username-error" className="text-sm text-red-500">
+                {errors.username.message}
+              </p>
             )}
           </div>
-        )}
-      </form>
 
-      {/* 登录链接 */}
-      <div className="mt-6 text-center">
-        <span className="text-sm text-gray-600">
-          已有账号？{' '}
-          <a
-            href="/login"
-            className="text-blue-600 hover:text-blue-500 font-medium"
+          {/* 密码字段 */}
+          <div className="space-y-2">
+            <Label htmlFor="password">
+              密码 <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="请输入密码"
+              {...register('password', {
+                required: '密码不能为空',
+                minLength: { value: 6, message: '密码至少需6个字符' },
+              })}
+              className={errors.password ? 'border-red-500' : ''}
+              aria-describedby={errors.password ? 'password-error' : undefined}
+            />
+            {errors.password && (
+              <p id="password-error" className="text-sm text-red-500">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+
+          {/* 确认密码字段 */}
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">
+              确认密码 <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="请再次输入密码"
+              {...register('confirmPassword', {
+                required: '请确认密码',
+                validate: (value) =>
+                  value === watchPassword || '两次输入的密码不一致',
+              })}
+              className={errors.confirmPassword ? 'border-red-500' : ''}
+              aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
+            />
+            {errors.confirmPassword && (
+              <p id="confirm-password-error" className="text-sm text-red-500">
+                {errors.confirmPassword.message}
+              </p>
+            )}
+          </div>
+
+          {/* 提交按钮 */}
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full"
           >
-            立即登录
-          </a>
-        </span>
-      </div>
-    </div>
+            {isSubmitting ? (
+              <>
+                <svg className="animate-spin mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                注册中...
+              </>
+            ) : (
+              '注册'
+            )}
+          </Button>
+
+          {/* 提交结果提示 */}
+          {submitMessage && (
+            <Alert variant={submitMessage.type === 'success' ? 'default' : 'destructive'}>
+              <AlertDescription>
+                {submitMessage.text}
+                {submitMessage.type === 'success' && (
+                  <p className="text-sm mt-1">即将跳转到登录页面...</p>
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
+        </form>
+
+        {/* 登录链接 */}
+        <div className="mt-6 text-center">
+          <span className="text-sm text-muted-foreground">
+            已有账号？{' '}
+            <a
+              href="/login"
+              className="text-primary hover:underline font-medium"
+            >
+              立即登录
+            </a>
+          </span>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
