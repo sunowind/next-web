@@ -2,7 +2,6 @@
 
 import { LogoutButton } from '@/components/common/logout-button'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AuthUser, getStoredAuth } from '@/lib/auth'
 import { useEffect, useState } from 'react'
 
@@ -64,34 +63,6 @@ export default function Dashboard() {
           <p className="text-base text-muted-foreground max-w-md mx-auto">
             这里是你的开发者仪表盘，专注于高效与极简。
           </p>
-        </section>
-
-        {/* User Info Grid */}
-        <section className="w-full grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
-          <Card className="rounded-2xl shadow-md">
-            <CardHeader className="pb-1 border-b">
-              <CardTitle className="text-xs font-semibold text-muted-foreground">用户ID</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-base font-mono text-foreground break-all pt-2 pb-1">{user.id}</div>
-            </CardContent>
-          </Card>
-          <Card className="rounded-2xl shadow-md">
-            <CardHeader className="pb-1 border-b">
-              <CardTitle className="text-xs font-semibold text-muted-foreground">用户名</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-base text-foreground pt-2 pb-1">{user.username}</div>
-            </CardContent>
-          </Card>
-          <Card className="rounded-2xl shadow-md">
-            <CardHeader className="pb-1 border-b">
-              <CardTitle className="text-xs font-semibold text-muted-foreground">注册时间</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-base text-foreground pt-2 pb-1">{new Date(user.createdAt).toLocaleDateString()}</div>
-            </CardContent>
-          </Card>
         </section>
 
         {/* Quick Actions */}
