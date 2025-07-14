@@ -1,6 +1,12 @@
-import React, { ReactElement } from 'react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import MarkdownIt from 'markdown-it'
+import hljs from 'markdown-it-highlightjs'
+
+// 初始化 markdown-it 实例
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true,
+}).use(hljs, { inline: true })
 
 /**
  * 将HTML转换为Markdown格式
@@ -79,182 +85,12 @@ export function htmlToMarkdown(html: string): string {
 }
 
 /**
- * 解析Markdown文本为React元素
+ * 解析Markdown文本为HTML字符串
  * @param markdown - Markdown文本
- * @returns React元素
+ * @returns HTML字符串
  */
-export function parseMarkdown(markdown: string): ReactElement {
-  return React.createElement(
-    ReactMarkdown,
-    {
-      remarkPlugins: [remarkGfm],
-      components: {
-        h1: ({
-          children,
-          ...props
-        }: {
-          children?: React.ReactNode
-          [key: string]: unknown
-        }) =>
-          React.createElement(
-            'h1',
-            { className: 'text-2xl font-bold mb-4', ...props },
-            children,
-          ),
-        h2: ({
-          children,
-          ...props
-        }: {
-          children?: React.ReactNode
-          [key: string]: unknown
-        }) =>
-          React.createElement(
-            'h2',
-            { className: 'text-xl font-bold mb-3', ...props },
-            children,
-          ),
-        h3: ({
-          children,
-          ...props
-        }: {
-          children?: React.ReactNode
-          [key: string]: unknown
-        }) =>
-          React.createElement(
-            'h3',
-            { className: 'text-lg font-bold mb-2', ...props },
-            children,
-          ),
-        p: ({
-          children,
-          ...props
-        }: {
-          children?: React.ReactNode
-          [key: string]: unknown
-        }) =>
-          React.createElement('p', { className: 'mb-2', ...props }, children),
-        strong: ({
-          children,
-          ...props
-        }: {
-          children?: React.ReactNode
-          [key: string]: unknown
-        }) =>
-          React.createElement(
-            'strong',
-            { className: 'font-bold', ...props },
-            children,
-          ),
-        em: ({
-          children,
-          ...props
-        }: {
-          children?: React.ReactNode
-          [key: string]: unknown
-        }) =>
-          React.createElement(
-            'em',
-            { className: 'italic', ...props },
-            children,
-          ),
-        code: ({
-          children,
-          ...props
-        }: {
-          children?: React.ReactNode
-          [key: string]: unknown
-        }) =>
-          React.createElement(
-            'code',
-            { className: 'bg-gray-100 px-1 py-0.5 rounded text-sm', ...props },
-            children,
-          ),
-        pre: ({
-          children,
-          ...props
-        }: {
-          children?: React.ReactNode
-          [key: string]: unknown
-        }) =>
-          React.createElement(
-            'pre',
-            {
-              className: 'bg-gray-100 p-3 rounded mb-3 overflow-x-auto',
-              ...props,
-            },
-            children,
-          ),
-        blockquote: ({
-          children,
-          ...props
-        }: {
-          children?: React.ReactNode
-          [key: string]: unknown
-        }) =>
-          React.createElement(
-            'blockquote',
-            {
-              className: 'border-l-4 border-gray-300 pl-4 mb-3 italic',
-              ...props,
-            },
-            children,
-          ),
-        ul: ({
-          children,
-          ...props
-        }: {
-          children?: React.ReactNode
-          [key: string]: unknown
-        }) =>
-          React.createElement(
-            'ul',
-            { className: 'list-disc list-inside mb-3', ...props },
-            children,
-          ),
-        ol: ({
-          children,
-          ...props
-        }: {
-          children?: React.ReactNode
-          [key: string]: unknown
-        }) =>
-          React.createElement(
-            'ol',
-            { className: 'list-decimal list-inside mb-3', ...props },
-            children,
-          ),
-        li: ({
-          children,
-          ...props
-        }: {
-          children?: React.ReactNode
-          [key: string]: unknown
-        }) =>
-          React.createElement('li', { className: 'mb-1', ...props }, children),
-        a: ({
-          href,
-          children,
-          ...props
-        }: {
-          href?: string
-          children?: React.ReactNode
-          [key: string]: unknown
-        }) =>
-          React.createElement(
-            'a',
-            {
-              href,
-              className: 'text-blue-600 hover:underline',
-              target: '_blank',
-              rel: 'noopener noreferrer',
-              ...props,
-            },
-            children,
-          ),
-      },
-    },
-    markdown,
-  )
+export function parseMarkdownToHtml(markdown: string): string {
+  return md.render(markdown)
 }
 
 /**
@@ -314,3 +150,6 @@ export function sanitizeMarkdown(markdown: string): string {
 
   return sanitized
 }
+
+// 导出 markdown-it 实例供其他地方使用
+export { md }
