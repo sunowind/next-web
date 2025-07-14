@@ -97,7 +97,7 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <section className="w-full">
           <div className="text-base font-bold text-foreground mb-4">快捷操作</div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <a href="/profile" className="group block rounded-2xl border bg-card shadow-md p-6 text-center transition hover:shadow-xl hover:border-primary focus:outline-none">
               <div className="flex flex-col items-center space-y-2">
                 <svg className="w-8 h-8 text-primary group-hover:text-primary/80 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,6 +124,15 @@ export default function Dashboard() {
                 </svg>
                 <div className="font-semibold text-foreground">数据分析</div>
                 <div className="text-xs text-muted-foreground">统计信息</div>
+              </div>
+            </a>
+            <a href="/editor" className="group block rounded-2xl border bg-card shadow-md p-6 text-center transition hover:shadow-xl hover:border-primary focus:outline-none">
+              <div className="flex flex-col items-center space-y-2">
+                <svg className="w-8 h-8 text-blue-500 group-hover:text-blue-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                <div className="font-semibold text-foreground">Markdown编辑器</div>
+                <div className="text-xs text-muted-foreground">专业编辑体验</div>
               </div>
             </a>
           </div>
