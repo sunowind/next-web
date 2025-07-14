@@ -12,7 +12,7 @@ jest.mock('next/navigation', () => ({
 describe('RegisterForm', () => {
   beforeEach(() => {
     // Reset fetch mock
-    ;(global.fetch as jest.Mock).mockClear()
+    ; (global.fetch as jest.Mock).mockClear()
   })
 
   it('renders all form fields correctly', () => {
@@ -52,7 +52,7 @@ describe('RegisterForm', () => {
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(screen.getByText('用户名至少需要3个字符')).toBeInTheDocument()
+      expect(screen.getByText('用户名至少需3个字符')).toBeInTheDocument()
     })
 
     // Test too long username
@@ -77,7 +77,7 @@ describe('RegisterForm', () => {
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(screen.getByText('密码至少需要6个字符')).toBeInTheDocument()
+      expect(screen.getByText('密码至少需6个字符')).toBeInTheDocument()
     })
   })
 
@@ -105,10 +105,10 @@ describe('RegisterForm', () => {
       message: '注册成功！请使用新账号登录',
     }
 
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockResponse,
-    })
+      ; (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponse,
+      })
 
     render(<RegisterForm />)
 
@@ -148,10 +148,10 @@ describe('RegisterForm', () => {
       message: '用户名已存在',
     }
 
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockResponse,
-    })
+      ; (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponse,
+      })
 
     render(<RegisterForm />)
 
@@ -173,7 +173,7 @@ describe('RegisterForm', () => {
   it('handles network error', async () => {
     const user = userEvent.setup()
 
-    ;(global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
+      ; (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
 
     render(<RegisterForm />)
 
@@ -195,13 +195,13 @@ describe('RegisterForm', () => {
   it('shows loading state during submission', async () => {
     const user = userEvent.setup()
 
-    // Mock a slow response
-    ;(global.fetch as jest.Mock).mockImplementationOnce(
-      () => new Promise(resolve => setTimeout(() => resolve({
-        ok: true,
-        json: async () => ({ success: true, message: '注册成功！请使用新账号登录' }),
-      }), 100))
-    )
+      // Mock a slow response
+      ; (global.fetch as jest.Mock).mockImplementationOnce(
+        () => new Promise(resolve => setTimeout(() => resolve({
+          ok: true,
+          json: async () => ({ success: true, message: '注册成功！请使用新账号登录' }),
+        }), 100))
+      )
 
     render(<RegisterForm />)
 

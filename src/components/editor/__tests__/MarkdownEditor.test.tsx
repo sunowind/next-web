@@ -3,6 +3,9 @@ import userEvent from '@testing-library/user-event';
 import React from 'react'; // Added missing import for React.useEffect
 import { MarkdownEditor } from '../MarkdownEditor';
 
+// Mock fetch
+global.fetch = jest.fn();
+
 // Mock Monaco Editor
 jest.mock('@monaco-editor/react', () => {
     return function MockMonacoEditor({ value, onChange, onMount, height }: any) {
@@ -26,6 +29,14 @@ jest.mock('@monaco-editor/react', () => {
                 />
             </div>
         );
+    };
+});
+
+// Mock Next.js dynamic import
+jest.mock('next/dynamic', () => {
+    return function MockDynamicImport(importFn: any, options: any) {
+        // 直接返回 @monaco-editor/react 的 mock
+        return require('@monaco-editor/react');
     };
 });
 
