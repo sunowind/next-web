@@ -28,16 +28,16 @@
 
 ## 技术实现建议（Tech Lead）
 
-- 前端：使用react-md-editor的内置语法支持
-- 编辑器：利用react-md-editor的完整工具栏
+- 前端：使用markdown-it的内置语法支持
+- 编辑器：自定义工具栏配合markdown-it插件
 - 后端：无需后端，纯前端实现
-- 安全：react-md-editor内置安全特性
+- 安全：markdown-it内置安全特性
 
 ## 技术难点
 
-- 工具栏的自定义配置
+- 自定义工具栏的实现
+- markdown-it插件的配置和集成
 - 特殊语法的支持（表格、任务列表）
-- 工具栏按钮的本地化
 
 ## 测试建议
 
@@ -49,9 +49,16 @@
 
 ### 前端实现步骤
 
-1. **配置完整的工具栏**
-   - 启用react-md-editor的默认工具栏
-   - 配置工具栏按钮组合：
+1. **配置markdown-it插件**
+   - 安装并配置 `markdown-it-highlightjs` 用于代码高亮
+   - 安装并配置 `markdown-it-table` 用于表格支持
+   - 安装并配置 `markdown-it-task-lists` 用于任务列表
+   - 安装并配置 `markdown-it-emoji` 用于表情符号支持
+   - 配置GFM（GitHub Flavored Markdown）支持
+
+2. **创建自定义工具栏**
+   - 实现工具栏组件 `components/editor/Toolbar.tsx`
+   - 添加常用格式化按钮：
      - 标题按钮（h1-h6）
      - 文本格式按钮（bold, italic, strikethrough）
      - 列表按钮（ordered, unordered, task）
@@ -60,20 +67,20 @@
      - 引用和分割线按钮
      - 表格按钮
 
-2. **扩展语法支持**
-   - 配置GFM（GitHub Flavored Markdown）支持
+3. **实现工具栏功能**
+   - 为每个按钮实现对应的插入功能
+   - 实现文本选择区域的格式化
+   - 实现光标位置的智能插入
+   - 添加键盘快捷键支持
+
+4. **扩展语法支持**
    - 启用表格语法支持
    - 启用任务列表支持
    - 启用删除线支持
    - 配置代码高亮支持
+   - 启用表情符号支持
 
-3. **自定义工具栏**
-   - 根据需要调整工具栏布局
-   - 添加自定义按钮（如果需要）
-   - 配置工具栏的响应式显示
-   - 实现工具栏的本地化
-
-4. **语法验证和优化**
+5. **语法验证和优化**
    - 测试所有支持的语法
    - 优化复杂语法的渲染性能
    - 处理边界情况
@@ -103,16 +110,20 @@
 
 - 前端文件：
   - `components/editor/MarkdownEditor.tsx`
+  - `components/editor/Toolbar.tsx`
 - 依赖包：
-  - `@uiw/react-md-editor`（内置完整语法支持）
-  - `@uiw/react-markdown-preview`（渲染支持）
+  - `markdown-it`（核心解析器）
+  - `markdown-it-highlightjs`（代码高亮）
+  - `markdown-it-table`（表格支持）
+  - `markdown-it-task-lists`（任务列表）
+  - `markdown-it-emoji`（表情符号）
 
 ## 注意事项
 
-- 利用react-md-editor的内置语法支持，无需额外配置
+- 利用markdown-it的插件生态系统
 - 确保工具栏按钮的可访问性
 - 考虑工具栏的本地化需求
 - 注意复杂语法的渲染性能
 - 确保所有语法的安全性
 - 考虑添加自定义语法支持（如果需要）
-- 测试工具栏在移动端的表现
+- 注意markdown-it插件的加载顺序和配置

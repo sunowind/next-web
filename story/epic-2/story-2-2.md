@@ -22,23 +22,30 @@
 
 ### 前端实现步骤
 
-1. **配置react-md-editor模式**
-   - 设置编辑器的 `data-color-mode` 属性
-   - 配置 `preview` 属性控制预览模式
-   - 设置 `view` 属性控制视图模式
+1. **配置markdown-it解析器**
+   - 初始化markdown-it实例
+   - 配置markdown-it插件（如highlightjs、toc等）
+   - 设置markdown-it的渲染选项
 
-2. **实现视图模式切换**
+2. **实现实时预览功能**
+   - 使用useState管理编辑器内容
+   - 使用useEffect监听内容变化
+   - 使用markdown-it实时解析Markdown内容
+   - 将解析结果渲染到预览区域
+
+3. **实现视图模式切换**
    - 支持 `edit` 模式（纯编辑）
    - 支持 `preview` 模式（纯预览）
    - 支持 `live` 模式（编辑+预览）
    - 添加模式切换按钮
 
-3. **优化预览体验**
+4. **优化预览体验**
    - 配置预览样式
    - 设置预览区域的滚动同步
    - 优化预览渲染性能
+   - 添加防抖处理避免频繁渲染
 
-4. **界面交互优化**
+5. **界面交互优化**
    - 添加工具栏按钮控制预览模式
    - 实现键盘快捷键支持
    - 添加全屏预览功能
@@ -66,12 +73,14 @@
 - 前端文件：
   - `components/editor/MarkdownEditor.tsx`
 - 依赖包：
-  - `@uiw/react-md-editor`（内置预览功能）
+  - `markdown-it`（核心解析器）
+  - `markdown-it-highlightjs`（代码高亮）
 
 ## 注意事项
 
-- 利用react-md-editor的内置实时预览能力
+- 利用markdown-it的高性能解析能力
 - 确保预览模式的响应速度
 - 考虑添加预览样式自定义
 - 注意编辑器在不同视图模式下的用户体验
 - 确保预览内容的安全性
+- 注意markdown-it的插件配置和性能优化
